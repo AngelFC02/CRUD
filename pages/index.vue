@@ -4,14 +4,14 @@
       {{ text }}
     </v-snackbar>
     <h1><center>Lista de Trabajadores</center></h1>
-    <v-btn @click="activar()">
-      <v-icon>mdi-cat</v-icon>
+    <v-btn text @click="activar()">
+      <v-icon>mdi-plus</v-icon>
     </v-btn>
     <v-dialog v-model="dialogo" max-width="500" persistent>
       <v-card>
         <v-card-title>
-          <span v-if="index > -1">Editar datos</span>
-          <span v-if="index === -1">Agregar datos</span>
+          <span v-if="index > -1">Editar Datos</span>
+          <span v-if="index === -1">Agregar Datos</span>
           <v-spacer />
           <v-btn icon color @click="sincambios()">
             <v-icon>mdi-close</v-icon>
@@ -38,7 +38,7 @@
           </v-row>
           <v-row>
             <v-col cols="4">
-              <v-text-field v-model="persona.edad" label="Edad" @keypress="soloNumeros($event)" />
+              <v-text-field v-model="persona.edad" label="Edad" maxlength="2" @keypress="soloNumeros($event)" />
             </v-col>
             <v-col cols="6">
               <h3>Estado</h3>
@@ -141,16 +141,30 @@ export default {
       this.activar()
     },
     eliminar (item) {
-      this.index = this.personas.indexOf(item)
-      this.personas.splice(this.index, 1)
-    },
-    limpiar () {
-      this.persona = {
-        nombre: '',
-        apellido: '',
-        edada: ''
-
-      }
+      this.$swal({
+        title: '¿Está seguro que desea eliminar?',
+        text: '',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si!',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.value) {
+          this.$swal(
+            'Eliminado!',
+            'El campo ha sido eliminado correctamente.',
+            'success'
+          )
+          this.index = this.personas.indexOf(item)
+          this.personas.splice(this.index, 1)
+          this.total -= 1
+        } else {
+        }
+      })
+      // this.index = this.personas.indexOf(item)
+      // this.personas.splice(this.index, 1)
     },
     activar () {
       this.dialogo = true
@@ -162,7 +176,8 @@ export default {
         apellido: '',
         edad: ''
       }
-      this.mensaje(true, 'error', 'no se efectuaron cambios')
+      this.mensaje(true, 'error', 'No se efectuaron cambios . . .')
+      this.index = -1
     },
     salir () {
       this.dialogo = false
