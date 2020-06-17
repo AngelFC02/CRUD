@@ -82,6 +82,7 @@
   </div>
 </template>
 <script>
+import Swal from 'sweetalert2'
 import formato from '~/plugins/formato'
 export default {
   data () {
@@ -141,7 +142,7 @@ export default {
       this.activar()
     },
     eliminar (item) {
-      this.$swal({
+      Swal.fire({
         title: '¿Está seguro que desea eliminar?',
         text: '',
         type: 'warning',
@@ -152,7 +153,7 @@ export default {
         cancelButtonText: 'Cancelar'
       }).then((result) => {
         if (result.value) {
-          this.$swal(
+          Swal.fire(
             'Eliminado!',
             'El campo ha sido eliminado correctamente.',
             'success'
