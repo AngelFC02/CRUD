@@ -160,7 +160,7 @@ export default {
           )
           this.index = this.personas.indexOf(item)
           this.personas.splice(this.index, 1)
-          this.total -= 1
+          this.index = -1
         } else {
         }
       })
