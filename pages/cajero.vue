@@ -6,7 +6,7 @@
     <h1><center>CAJERO AUTOMATICO</center></h1>
     <v-card>
       <v-row>
-        <v-col cols="7">
+        <v-col cols="6">
           <div>
             <v-card-text>
               <span>
@@ -33,13 +33,13 @@
             </v-card-title>
           </div>
         </v-col>
-        <v-col cols="5">
+        <v-col cols="6">
           <v-card>
             <v-card-title>
               Opciones
             </v-card-title>
             <v-card-text>
-              <v-col cols="12">
+              <v-col cols="10">
                 <v-text-field
                   v-model="usuario.tarjeta"
                   placeholder="Numero de tarjeta"
@@ -51,61 +51,42 @@
                   @keypress="numerosValidacion($event)"
                 />
               </v-col>
+              <div id="app" class="control" @click="mostrar()">
+                <v-row>
+                  <v-col cols="12" style="padding: 0px, 0px, 0px, 0px">
+                    <v-btn v-model="boton" color="success" @click="confirmarTarjeta()" @keypress="numerosValidacion($event)">
+                      confirmar tarjeta
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </div>
             </v-card-text>
-            <v-col cols="10">
-              <v-text-field
-                v-model="usuario.dni"
-                placeholder="DNI"
-                maxlength="8"
-                @keypress="numerosValidacion($event)"
-              />
-            </v-col>
-            <v-card-actions>
+            <!--  -->
+            <div v-if="seen" id="hide">
+              <v-col cols="10">
+                <v-text-field
+                  v-model="usuario.dni"
+                  placeholder="DNI"
+                  maxlength="8"
+                  @keypress="numerosValidacion($event)"
+                />
+              </v-col>
+              <v-col>
+                <v-text-field type="number" min="0" placeholder="Monto a retirar" @keypress="numerosValidacion($event)" />
+              </v-col>
               <v-row>
-                <v-col>
-                  <v-btn color="success" @click="confirmar1()" @keypress="numerosValidacion($event)">
-                    confirmar
-                  </v-btn>
-                </v-col>
                 <v-col>
                   <v-btn>
                     cancelar
                   </v-btn>
                 </v-col>
               </v-row>
-            </v-card-actions>
+            </div>
+            <!--  -->
           </v-card>
         </v-col>
       </v-row>
     </v-card>
-    <v-dialog v-model="mensaje" max-width="400" persistent>
-      <v-card>
-        <v-card-title>
-          Cuanto dinero desea retirar?
-          <v-spacer />
-          <v-btn icon @click="salir()">
-            <v-icon>
-              mdi-close
-            </v-icon>
-          </v-btn>
-        </v-card-title>
-        <v-card-text>
-          <v-text-field type="number" />
-          <span>
-            {saldo}
-          </span>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn color="success">
-            confirmar
-          </v-btn>
-          <v-btn @click="salir()">
-            salir
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -114,6 +95,8 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      seen: false,
+      boton: true,
       snackbar: false,
       color: '',
       text: '',
@@ -135,14 +118,28 @@ export default {
     salir () {
       this.mensaje = false
     },
-    confirmar1 () {
-      if (!this.usuario.tarjeta || !this.usuario.dni) {
-        console.log('error')
-        this.mensajeAlert(true, 'error', 'Error de datos, por favor verificar. . .')
+    mostrar () {
+      if (!this.usuario.tarjeta) {
+        this.mensajeAlert(true, 'error', 'Tarjeta no valida')
       } else {
-        this.mensajeAlert(true, 'success', 'Datos validos!!!')
-        this.mensaje = true
+        this.seen = !this.seen
       }
+    },
+    // confirmar1 (i) {
+    //   if (!this.usuario.tarjeta || !this.usuario.dni) {
+    //     console.log('error')
+    //     this.mensajeAlert(true, 'error', `Por favor verificar, le queda ${i} intentos .`)
+    //     // for (let i = 3; i >= 0; i--) {
+    //     //   console.log(i)
+    //     //   this.mensajeAlert(true, 'error', `Por favor verificar, le queda ${i} intentos .`)
+    //     // }
+    //   } else {
+    //     this.mensajeAlert(true, 'success', 'Datos validos!!!')
+    //     this.mensaje = true
+    //   }
+    // },
+    confirmarTarjeta () {
+      console.log('hola')
     },
     mensajeAlert (snakbar, color, text) {
       this.snackbar = snakbar
