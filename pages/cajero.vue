@@ -1,5 +1,8 @@
 <template>
   <div>
+    <v-snackbar v-model="snackbar" top :color="color" :timeout="2000">
+      {{ text }}
+    </v-snackbar>
     <h1><center>CAJERO AUTOMATICO</center></h1>
     <v-card>
       <v-row>
@@ -38,6 +41,7 @@
             <v-card-text>
               <v-col cols="12">
                 <v-text-field
+                  v-model="usuario.tarjeta"
                   placeholder="Numero de tarjeta"
                   maxlength="15"
                   counter="15"
@@ -50,6 +54,7 @@
             </v-card-text>
             <v-col cols="10">
               <v-text-field
+                v-model="usuario.dni"
                 placeholder="DNI"
                 maxlength="8"
                 @keypress="numerosValidacion($event)"
@@ -58,7 +63,7 @@
             <v-card-actions>
               <v-row>
                 <v-col>
-                  <v-btn color="success" @click="activar()" @keypress="numerosValidacion($event)">
+                  <v-btn color="success" @click="confirmar1()" @keypress="numerosValidacion($event)">
                     confirmar
                   </v-btn>
                 </v-col>
@@ -109,9 +114,17 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      snackbar: false,
+      color: '',
+      text: '',
       show1: false,
-      dni: null,
-      pass: null,
+      dni: '',
+      usuario: {
+        nombre: '',
+        tarjeta: '',
+        dni: '',
+        saldo: ''
+      },
       mensaje: false
     }
   },
@@ -122,8 +135,19 @@ export default {
     salir () {
       this.mensaje = false
     },
-    activar () {
-      this.mensaje = true
+    confirmar1 () {
+      if (!this.usuario.tarjeta || !this.usuario.dni) {
+        console.log('error')
+        this.mensajeAlert(true, 'error', 'Error de datos, por favor verificar. . .')
+      } else {
+        this.mensajeAlert(true, 'success', 'Datos validos!!!')
+        this.mensaje = true
+      }
+    },
+    mensajeAlert (snakbar, color, text) {
+      this.snackbar = snakbar
+      this.color = color
+      this.text = text
     }
   }
 }
