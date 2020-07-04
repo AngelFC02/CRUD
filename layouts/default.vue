@@ -105,6 +105,11 @@ export default {
           icon: 'mdi-chart-bubble',
           title: 'Inspire',
           to: '/inspire'
+        },
+        {
+          icon: 'mdi-cash',
+          title: 'Cajero Automatico',
+          to: '/cajero'
         }
       ],
       miniVariant: false,
