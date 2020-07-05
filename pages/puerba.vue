@@ -62,6 +62,7 @@
               </v-row>
               <v-col cols="10">
                 <v-text-field
+                  v-model="verificarTarjeta"
                   placeholder="DNI"
                   maxlength="8"
                   :disabled="disabled ? true : false"
@@ -70,7 +71,13 @@
                 />
               </v-col>
               <v-col>
-                <v-text-field type="number" min="0" placeholder="Monto a retirar" @keypress="numerosValidacion($event)" />
+                <v-text-field
+                  type="number"
+                  min="0"
+                  :disabled="disabledMonto ? true : false"
+                  placeholder="Monto a retirar"
+                  @keypress="numerosValidacion($event)"
+                />
               </v-col>
               <v-row>
                 <v-col>
@@ -92,9 +99,10 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      disabledMonto: true,
       disabled: true,
       index: -1,
-      verificarTarjeta: false,
+      verificarTarjeta: '',
       snackbar: false,
       color: '',
       text: '',
@@ -120,11 +128,18 @@ export default {
     salir () {
       this.mensaje = false
     },
+    Montovalidar () {
+      Object.assign(this.usuarios[this.index], this.usuario)
+      console.log(this.index)
+    },
     dniValidar () {
       Object.assign(this.usuarios[this.index], this.usuario)
-      console.log(this.usuarios)
-      // if (this.index > -1) {
-      // }
+      console.log(this.usuario)
+      console.log(this.index)
+      if (this.usuario.dni === this.verificarTarjeta) {
+        this.mensajeAlert(true, 'success', 'Datos validos!!!')
+        this.disabledMonto = false
+      }
     },
     confirmar1 () {
       console.log('mensaje')
