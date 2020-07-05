@@ -10,7 +10,7 @@
           <div>
             <v-card-text>
               <span>
-                Asuario: {admin}
+                Usuario: {admin}
               </span>
               <br>
               <br>
@@ -52,7 +52,6 @@
                 <v-col cols="12" style="padding: 0px, 0px, 0px, 0px">
                   <v-btn
                     color="success"
-                    block
                     depressed
                     @click="confirmar1()"
                     @keypress="numerosValidacion($event)"
@@ -63,9 +62,10 @@
               </v-row>
               <v-col cols="10">
                 <v-text-field
-                  v-model="usuario.dni"
                   placeholder="DNI"
                   maxlength="8"
+                  :disabled="disabled ? true : false"
+                  @keypress.enter="dniValidar()"
                   @keypress="numerosValidacion($event)"
                 />
               </v-col>
@@ -92,6 +92,9 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      disabled: true,
+      index: -1,
+      verificarTarjeta: false,
       snackbar: false,
       color: '',
       text: '',
@@ -104,8 +107,8 @@ export default {
         saldo: ''
       },
       usuarios: [
-        { nombre: 'angel', Ntarjeta: '1234567890123454', dni: '12345678', saldo: '1200' },
-        { nombre: 'antonio', Ntarjeta: '0123456789012345', dni: '87654321', saldo: '1500' }
+        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: '1200' },
+        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: '1500' }
       ],
       mensaje: false
     }
@@ -117,10 +120,27 @@ export default {
     salir () {
       this.mensaje = false
     },
+    dniValidar () {
+      Object.assign(this.usuarios[this.index], this.usuario)
+      console.log(this.usuarios)
+      // if (this.index > -1) {
+      // }
+    },
     confirmar1 () {
       console.log('mensaje')
       for (const i of this.usuarios) {
-        console.log(i)
+        // console.log(i)
+
+        if (this.usuario.Ntarjeta === i.Ntarjeta) {
+          console.log('validado')
+          this.disabled = false
+          this.index = this.usuarios.indexOf(i)
+          this.usuario = Object.assign({}, i)
+          console.log(this.index)
+          console.log(this.usuario)
+          this.mensajeAlert(true, 'success', 'Datos validos!!!')
+          console.log(`numero de tarjeta es ${this.usuario.Ntarjeta}`)
+        }
       }
       // if (!this.usuario.Ntarjeta === this.usuarios.Ntarjeta) {
       //   console.log('exito')
