@@ -110,12 +110,17 @@ export default {
           icon: 'mdi-cash',
           title: 'Cajero Automatico',
           to: '/cajero'
+        },
+        {
+          icon: 'mdi-cash',
+          title: 'Pruebas',
+          to: '/puerba'
         }
       ],
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Vuetify.js'
+      title: 'practica.js'
     }
   }
 }
