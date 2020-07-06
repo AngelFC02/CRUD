@@ -39,24 +39,26 @@
               Opciones
             </v-card-title>
             <v-card-text>
-              <v-col cols="10">
-                <v-text-field
-                  v-model="usuario.Ntarjeta"
-                  placeholder="Ingresar N° de tarjeta"
-                  maxlength="15"
-                  counter="15"
-                  @keypress="numerosValidacion($event)"
-                />
-              </v-col>
               <v-row>
-                <v-col cols="12" style="padding: 0px, 0px, 0px, 0px">
+                <v-col cols="8">
+                  <v-text-field
+                    v-model="usuario.Ntarjeta"
+                    placeholder="Ingresar N° de tarjeta"
+                    maxlength="15"
+                    counter="15"
+                    @keypress="numerosValidacion($event)"
+                  />
+                </v-col>
+                <v-col cols="3" style="padding: 0px, 0px, 0px, 0px">
                   <v-btn
                     color="success"
                     depressed
                     @click="confirmar1()"
                     @keypress="numerosValidacion($event)"
                   >
-                    confirmar N° de tarjeta
+                    <v-icon>
+                      mdi-send
+                    </v-icon>
                   </v-btn>
                 </v-col>
               </v-row>
@@ -72,16 +74,39 @@
               </v-col>
               <v-col>
                 <v-text-field
+                  v-model="usuario.retiro"
                   type="number"
                   min="0"
+                  :max="usuario.maxretiro"
                   :disabled="disabledMonto ? true : false"
                   placeholder="Monto a retirar"
+                  @click="PreguntaRetiro()"
                   @keypress="numerosValidacion($event)"
                 />
               </v-col>
               <v-row>
                 <v-col>
-                  <v-btn block outlined rounded color="red">
+                  <center>
+                    <p>Solo Se Podra Retirar el 40% del Monto</p>
+                  </center>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <p>Saldo total: {{ usuario.saldo }}</p>
+                </v-col>
+                <v-col>
+                  <p>Maximo Monto a Retirar: {{ usuario.maxretiro }} </p>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <v-btn :disabled="disableboton ? true : false" rounded color="success" @click="ConfirmarRetiro()">
+                    Retirar
+                  </v-btn>
+                </v-col>
+                <v-col>
+                  <v-btn rounded outlined color="red" @click="limpiar()">
                     cancelar
                   </v-btn>
                 </v-col>
@@ -95,10 +120,15 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2'
 import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      porcentaje: 50,
+      contador: 3,
+      monto: '',
+      disableboton: true,
       disabledMonto: true,
       disabled: true,
       index: -1,
@@ -112,11 +142,13 @@ export default {
         nombre: '',
         Ntarjeta: '',
         dni: '',
-        saldo: ''
+        saldo: '',
+        maxretiro: '',
+        retiro: ''
       },
       usuarios: [
-        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: '1200' },
-        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: '1500' }
+        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: '', retiro: '' },
+        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: 1500, maxretiro: '', retiro: '' }
       ],
       mensaje: false
     }
@@ -134,11 +166,20 @@ export default {
     },
     dniValidar () {
       Object.assign(this.usuarios[this.index], this.usuario)
-      console.log(this.usuario)
+      console.log(this.contador)
       console.log(this.index)
-      if (this.usuario.dni === this.verificarTarjeta) {
+      console.log(this.usuario)
+      this.contador -= 1
+      if (this.contador <= 0) {
+        this.mensajeAlert(true, 'error', `Error le quedan ${this.contador}`)
+        this.disabled = true
+        this.limpiar()
+        this.verificarTarjeta = ''
+        this.contador = 3
+      } else if (this.usuario.dni === this.verificarTarjeta) {
         this.mensajeAlert(true, 'success', 'Datos validos!!!')
         this.disabledMonto = false
+        this.disableboton = false
       }
     },
     confirmar1 () {
@@ -157,13 +198,44 @@ export default {
           console.log(`numero de tarjeta es ${this.usuario.Ntarjeta}`)
         }
       }
-      // if (!this.usuario.Ntarjeta === this.usuarios.Ntarjeta) {
-      //   console.log('exito')
-      //   this.mensajeAlert(true, 'success', 'Datos validos!!!')
-      //   this.mensaje = true
-      // } else {
-      //   this.mensajeAlert(true, 'error', 'Por favor verificar, le queda intentos .')
-      // }
+    },
+    PreguntaRetiro () {
+      this.usuario.maxretiro = (this.porcentaje * this.usuario.saldo) / 100
+      console.log()
+    },
+    limpiar () {
+      this.usuario = {
+        nombre: '',
+        Ntarjeta: '',
+        dni: '',
+        saldo: '',
+        intentos: 3
+      }
+    },
+    ConfirmarRetiro () {
+      Swal.fire({
+        title: '¿Desea retirar el monto establecido?',
+        text: 'Una vez realizado no se podrá anular',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si!',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.value) {
+          Swal.fire(
+            'Exito!',
+            'Monto Retirado con Exito.',
+            'success'
+          )
+          this.usuario.saldo = this.usuario.retiro - this.usuario.monto
+          Object.assign(this.usuarios[this.index], this.usuario)
+          console.log(this.contador)
+          this.usuarios.push(this.usuario)
+          this.mensajeAlert(true, 'success', 'Datos guardados correctamente!!!')
+        }
+      })
     },
     mensajeAlert (snakbar, color, text) {
       this.snackbar = snakbar

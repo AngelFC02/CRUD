@@ -42,6 +42,7 @@
               <v-col cols="10">
                 <v-text-field
                   v-model="usuario.Ntarjeta"
+                  type="number"
                   placeholder="Ingresar N° de tarjeta"
                   maxlength="15"
                   counter="15"
@@ -49,7 +50,7 @@
                 />
               </v-col>
               <v-row>
-                <v-col cols="12" style="padding: 0px, 0px, 0px, 0px">
+                <v-col cols="12">
                   <v-btn color="success" @click="confirmar1()" @keypress="numerosValidacion($event)">
                     confirmar N° de tarjeta
                   </v-btn>
