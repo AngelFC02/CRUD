@@ -43,9 +43,12 @@
                 <v-col cols="8">
                   <v-text-field
                     v-model="usuario.Ntarjeta"
-                    placeholder="Ingresar N° de tarjeta"
+                    label="Ingresar N° de tarjeta"
+                    :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                    :type="show1 ? 'text' : 'password'"
                     maxlength="15"
                     counter="15"
+                    @click:append="show1 = !show1"
                     @keypress="numerosValidacion($event)"
                   />
                 </v-col>
@@ -65,7 +68,7 @@
               <v-col cols="10">
                 <v-text-field
                   v-model="verificarDNI"
-                  placeholder="DNI"
+                  label="DNI"
                   maxlength="8"
                   :disabled="disabled ? true : false"
                   @keypress.enter="dniValidar()"
@@ -79,12 +82,12 @@
                   min="0"
                   :max="usuario.maxretiro"
                   :disabled="disabledMonto ? true : false"
-                  placeholder="Monto a retirar"
+                  label="Monto a retirar"
                   @click="PreguntaRetiro()"
                   @keypress="numerosValidacion($event)"
                 />
               </v-col>
-              <div :id="datos ? true : false ">
+              <div v-if="seen" id="hide">
                 <v-row>
                   <v-col>
                     <center>
@@ -127,7 +130,8 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
-      datos: false,
+      show1: false,
+      seen: false,
       porcentaje: 50,
       contador: 3,
       monto: '',
@@ -181,6 +185,7 @@ export default {
         this.contador = 3
       } else if (this.usuario.dni === this.verificarDNI) {
         this.mensajeAlert(true, 'success', 'Datos validos!!!')
+        this.seen = true
         this.disabledMonto = false
         this.disableboton = false
       }
