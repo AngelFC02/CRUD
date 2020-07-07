@@ -64,7 +64,7 @@
               </v-row>
               <v-col cols="10">
                 <v-text-field
-                  v-model="verificarTarjeta"
+                  v-model="verificarDNI"
                   placeholder="DNI"
                   maxlength="8"
                   :disabled="disabled ? true : false"
@@ -84,21 +84,23 @@
                   @keypress="numerosValidacion($event)"
                 />
               </v-col>
-              <v-row>
-                <v-col>
-                  <center>
-                    <p>Solo Se Podra Retirar el 40% del Monto</p>
-                  </center>
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>
-                  <p>Saldo total: {{ usuario.saldo }}</p>
-                </v-col>
-                <v-col>
-                  <p>Maximo Monto a Retirar: {{ usuario.maxretiro }} </p>
-                </v-col>
-              </v-row>
+              <div :id="datos ? true : false ">
+                <v-row>
+                  <v-col>
+                    <center>
+                      <p>Solo Se Podra Retirar el 40% del Monto</p>
+                    </center>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col>
+                    <p>Saldo total: {{ usuario.saldo }}</p>
+                  </v-col>
+                  <v-col>
+                    <p>Maximo Monto a Retirar: {{ usuario.maxretiro }} </p>
+                  </v-col>
+                </v-row>
+              </div>
               <v-row>
                 <v-col>
                   <v-btn :disabled="disableboton ? true : false" rounded color="success" @click="ConfirmarRetiro()">
@@ -125,6 +127,7 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      datos: false,
       porcentaje: 50,
       contador: 3,
       monto: '',
@@ -132,7 +135,7 @@ export default {
       disabledMonto: true,
       disabled: true,
       index: -1,
-      verificarTarjeta: '',
+      verificarDNI: '',
       snackbar: false,
       color: '',
       text: '',
@@ -142,13 +145,13 @@ export default {
         nombre: '',
         Ntarjeta: '',
         dni: '',
-        saldo: '',
-        maxretiro: '',
-        retiro: ''
+        saldo: 0,
+        maxretiro: 0,
+        retiro: 0
       },
       usuarios: [
-        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: '', retiro: '' },
-        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: 1500, maxretiro: '', retiro: '' }
+        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: 0 },
+        { nombre: 'antonio', Ntarjeta: '012345678901 vc 234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: 0 }
       ],
       mensaje: false
     }
@@ -174,9 +177,9 @@ export default {
         this.mensajeAlert(true, 'error', `Error le quedan ${this.contador}`)
         this.disabled = true
         this.limpiar()
-        this.verificarTarjeta = ''
+        this.verificarDNI = ''
         this.contador = 3
-      } else if (this.usuario.dni === this.verificarTarjeta) {
+      } else if (this.usuario.dni === this.verificarDNI) {
         this.mensajeAlert(true, 'success', 'Datos validos!!!')
         this.disabledMonto = false
         this.disableboton = false
@@ -213,29 +216,35 @@ export default {
       }
     },
     ConfirmarRetiro () {
-      Swal.fire({
-        title: '¿Desea retirar el monto establecido?',
-        text: 'Una vez realizado no se podrá anular',
-        type: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Si!',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.value) {
-          Swal.fire(
-            'Exito!',
-            'Monto Retirado con Exito.',
-            'success'
-          )
-          this.usuario.saldo = this.usuario.retiro - this.usuario.monto
-          Object.assign(this.usuarios[this.index], this.usuario)
-          console.log(this.contador)
-          this.usuarios.push(this.usuario)
-          this.mensajeAlert(true, 'success', 'Datos guardados correctamente!!!')
-        }
-      })
+      if (this.usuario.retiro > this.usuario.maxretiro) {
+        this.mensajeAlert(true, 'error', 'Monto no permitido!!!')
+      } else {
+        Swal.fire({
+          title: '¿Desea retirar el monto establecido?',
+          text: 'Una vez realizado no se podrá anular',
+          type: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#3085d6',
+          cancelButtonColor: '#d33',
+          confirmButtonText: 'Si!',
+          cancelButtonText: 'Cancelar'
+        }).then((result) => {
+          if (result.value) {
+            Swal.fire(
+              'Exito!',
+              'Monto Retirado con Exito.',
+              'success'
+            )
+            parseInt(this.usuario.retiro)
+            this.usuario.saldo = this.usuario.saldo - this.usuario.retiro
+            Object.assign(this.usuarios[this.index], this.usuario)
+            console.log(this.contador)
+            this.usuarios.push(this.usuario)
+            console.log(this.usuario)
+            this.mensajeAlert(true, 'success', 'Datos guardados correctamente!!!')
+          }
+        })
+      }
     },
     mensajeAlert (snakbar, color, text) {
       this.snackbar = snakbar
