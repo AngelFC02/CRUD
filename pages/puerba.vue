@@ -91,7 +91,7 @@
                 <v-row>
                   <v-col>
                     <center>
-                      <p>Solo Se Podra Retirar el 40% del Monto</p>
+                      <p>Solo Se Podra Retirar el 50% del Monto</p>
                     </center>
                   </v-col>
                 </v-row>
@@ -151,11 +151,11 @@ export default {
         dni: '',
         saldo: 0,
         maxretiro: 0,
-        retiro: 0
+        retiro: ''
       },
       usuarios: [
-        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: 0 },
-        { nombre: 'antonio', Ntarjeta: '012345678901 vc 234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: 0 }
+        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: '' },
+        { nombre: 'antonio', Ntarjeta: '012345678901 vc 234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: '' }
       ],
       mensaje: false
     }
