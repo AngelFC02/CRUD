@@ -6,7 +6,7 @@
     <h1><center>CAJERO AUTOMATICO</center></h1>
     <v-card>
       <v-row>
-        <v-col cols="6">
+        <v-col cols="6" md="6" sm="6">
           <div>
             <v-card-text>
               <span>
@@ -43,6 +43,7 @@
                 <v-col cols="8">
                   <v-text-field
                     v-model="usuario.Ntarjeta"
+                    :disabled="disableTarjeta ? true : false"
                     label="Ingresar N° de tarjeta"
                     :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="show1 ? 'text' : 'password'"
@@ -55,9 +56,10 @@
                 <!--preguntar sobre el padding-->
                 <v-col cols="3" style="padding: 0px, 0px, 0px, 0px">
                   <v-btn
+                    :disabled="disableTarjeta ? true : false"
                     color="success"
                     depressed
-                    @click="confirmar1()"
+                    @click="validarTarjeta()"
                     @keypress="numerosValidacion($event)"
                   >
                     <v-icon>
@@ -131,10 +133,10 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      disableTarjeta: false,
       show1: false,
       seen: false,
       porcentaje: 50,
-      contador: 3,
       monto: '',
       disableboton: true,
       disabledMonto: true,
@@ -156,8 +158,8 @@ export default {
         acceso: ''
       },
       usuarios: [
-        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: '', acceso: true },
-        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: '', acceso: true }
+        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: '', acceso: true, intentos: 3 },
+        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: '', acceso: true, intentos: 3 }
       ],
       mensaje: false
     }
@@ -175,19 +177,18 @@ export default {
     },
     dniValidar () {
       Object.assign(this.usuarios[this.index], this.usuario)
-      console.log(this.contador)
+      console.log(this.usuario.intentos)
       console.log(this.index)
       console.log(this.usuario)
-      this.contador -= 1
-      if (this.contador <= 0) {
+      this.usuario.intentos -= 1
+      if (this.usuario.intentos <= 0) {
         this.mensajeAlert(true, 'error', 'Ya no le quedan itentos. . .')
         this.limpiar()
-        this.disabled = true
         this.usuario.acceso = false
         Object.assign(this.usuarios[this.index], this.usuario)
         this.usuarios.push(this.usuario)
         this.verificarDNI = ''
-        this.contador = 3
+        // this.contador = 3
       } else if (this.usuario.dni === this.verificarDNI) {
         this.mensajeAlert(true, 'success', 'Datos validos!!!')
         this.seen = true
@@ -195,7 +196,7 @@ export default {
         this.disableboton = false
       }
     },
-    confirmar1 () {
+    validarTarjeta () {
       console.log('mensaje')
       for (const i of this.usuarios) {
         // console.log(i)
@@ -203,10 +204,12 @@ export default {
         //   this.mensajeAlert(true, 'error', 'Limite diario caducado !!!')
         // } else if (this.usuario.Ntarjeta === i.Ntarjeta) {
         if (this.usuario.Ntarjeta === i.Ntarjeta) {
+          this.disableTarjeta = true
+          this.verificarDNI = ''
           this.index = this.usuarios.indexOf(i)
           this.usuario = Object.assign({}, i)
           if (this.usuario.acceso === false) {
-            this.disabled = true
+            this.limpiar()
             this.mensajeAlert(true, 'error', 'Limite diario caducado !!!')
           } else {
             console.log('validado')
@@ -226,7 +229,10 @@ export default {
       console.log()
     },
     limpiar () {
-      this.contador = 3
+      this.disabledMonto = true
+      this.disableboton = true
+      this.seen = false
+      this.disableTarjeta = false
       this.disabled = true
       this.verificarDNI = ''
       this.usuario = {
@@ -259,7 +265,6 @@ export default {
             parseInt(this.usuario.retiro)
             this.usuario.saldo = this.usuario.saldo - this.usuario.retiro
             Object.assign(this.usuarios[this.index], this.usuario)
-            console.log(this.contador)
             this.usuarios.push(this.usuario)
             console.log(this.usuario)
             this.mensajeAlert(true, 'success', 'Datos guardados correctamente!!!')
