@@ -52,6 +52,7 @@
                     @keypress="numerosValidacion($event)"
                   />
                 </v-col>
+                <!--preguntar sobre el padding-->
                 <v-col cols="3" style="padding: 0px, 0px, 0px, 0px">
                   <v-btn
                     color="success"
@@ -151,11 +152,12 @@ export default {
         dni: '',
         saldo: 0,
         maxretiro: 0,
-        retiro: ''
+        retiro: '',
+        acceso: ''
       },
       usuarios: [
-        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: '' },
-        { nombre: 'antonio', Ntarjeta: '012345678901 vc 234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: '' }
+        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: '', acceso: true },
+        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: '', acceso: true }
       ],
       mensaje: false
     }
@@ -178,9 +180,12 @@ export default {
       console.log(this.usuario)
       this.contador -= 1
       if (this.contador <= 0) {
-        this.mensajeAlert(true, 'error', `Error le quedan ${this.contador}`)
-        this.disabled = true
+        this.mensajeAlert(true, 'error', 'Ya no le quedan itentos. . .')
         this.limpiar()
+        this.disabled = true
+        this.usuario.acceso = false
+        Object.assign(this.usuarios[this.index], this.usuario)
+        this.usuarios.push(this.usuario)
         this.verificarDNI = ''
         this.contador = 3
       } else if (this.usuario.dni === this.verificarDNI) {
@@ -194,16 +199,25 @@ export default {
       console.log('mensaje')
       for (const i of this.usuarios) {
         // console.log(i)
-
+        // if (this.usuario.acceso === false) {
+        //   this.mensajeAlert(true, 'error', 'Limite diario caducado !!!')
+        // } else if (this.usuario.Ntarjeta === i.Ntarjeta) {
         if (this.usuario.Ntarjeta === i.Ntarjeta) {
-          console.log('validado')
-          this.disabled = false
           this.index = this.usuarios.indexOf(i)
           this.usuario = Object.assign({}, i)
-          console.log(this.index)
-          console.log(this.usuario)
-          this.mensajeAlert(true, 'success', 'Datos validos!!!')
-          console.log(`numero de tarjeta es ${this.usuario.Ntarjeta}`)
+          if (this.usuario.acceso === false) {
+            this.disabled = true
+            this.mensajeAlert(true, 'error', 'Limite diario caducado !!!')
+          } else {
+            console.log('validado')
+            this.disabled = false
+            this.index = this.usuarios.indexOf(i)
+            this.usuario = Object.assign({}, i)
+            console.log(`indice  = ${this.index}`)
+            console.log(this.usuario)
+            this.mensajeAlert(true, 'success', 'Datos validos!!!')
+            console.log(`numero de tarjeta es ${this.usuario.Ntarjeta}`)
+          }
         }
       }
     },
@@ -212,12 +226,14 @@ export default {
       console.log()
     },
     limpiar () {
+      this.contador = 3
+      this.disabled = true
+      this.verificarDNI = ''
       this.usuario = {
         nombre: '',
         Ntarjeta: '',
         dni: '',
-        saldo: '',
-        intentos: 3
+        saldo: ''
       }
     },
     ConfirmarRetiro () {
