@@ -119,6 +119,7 @@ export default {
       if (this.index > -1) {
         Object.assign(this.personas[this.index], this.persona)
         this.mensaje(true, 'success', 'Datos Actualizados correctamente!!!')
+        console.log(this.personas)
         this.salir()
       } else if (this.index === -1) {
         if (
@@ -130,6 +131,7 @@ export default {
           this.mensaje(true, 'error', 'Por Favor Ingresa Datos!!!')
         } else {
           this.personas.push(this.persona)
+          console.log(this.personas)
           this.mensaje(true, 'success', 'Datos guardados correctamente!!!')
           this.salir()
         }

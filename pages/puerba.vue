@@ -155,11 +155,12 @@ export default {
         saldo: 0,
         maxretiro: 0,
         retiro: '',
-        acceso: ''
+        acceso: '',
+        intentos: ''
       },
       usuarios: [
-        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: '', acceso: true, intentos: 3 },
-        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: '', acceso: true, intentos: 3 }
+        { nombre: 'angel', Ntarjeta: '123456789012345', dni: '12345678', saldo: 100, maxretiro: 0, retiro: '', acceso: true, intentos: 2 },
+        { nombre: 'antonio', Ntarjeta: '012345678901234', dni: '87654321', saldo: 1500, maxretiro: 0, retiro: '', acceso: true, intentos: 2 }
       ],
       mensaje: false
     }
@@ -181,12 +182,14 @@ export default {
       console.log(this.index)
       console.log(this.usuario)
       this.usuario.intentos -= 1
-      if (this.usuario.intentos <= 0) {
+      // this.usuarios.push(this.usuario)
+      console.log(this.usuarios)
+      if (this.usuario.intentos < 0) {
         this.mensajeAlert(true, 'error', 'Ya no le quedan itentos. . .')
         this.limpiar()
         this.usuario.acceso = false
-        Object.assign(this.usuarios[this.index], this.usuario)
-        this.usuarios.push(this.usuario)
+        // Object.assign(this.usuarios[this.index], this.usuario)
+        // this.usuarios.push(this.usuario)
         this.verificarDNI = ''
         // this.contador = 3
       } else if (this.usuario.dni === this.verificarDNI) {
@@ -229,6 +232,7 @@ export default {
       console.log()
     },
     limpiar () {
+      console.log(this.usuarios)
       this.disabledMonto = true
       this.disableboton = true
       this.seen = false
