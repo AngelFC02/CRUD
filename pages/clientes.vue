@@ -1,9 +1,12 @@
+/*Suponga usted que tiene una tienda y desea registrar las ventas en su computadora
+Diseñe un algoritmo que lea por cada cliente el monto total de su compra .
+Al final del día que escriba la cantidad total de ventas y el número de clientes atendidos*/
 <template>
   <div>
     <v-snackbar v-model="snackbar" top :color="color" :timeout="2000">
       {{ text }}
     </v-snackbar>
-    <h1><center>Lista de Trabajadores</center></h1>
+    <h1><center>Lista de clientes</center></h1>
     <v-btn text @click="activar()">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
@@ -41,8 +44,7 @@
               <v-text-field v-model="persona.edad" label="Edad" maxlength="2" @keypress="soloNumeros($event)" />
             </v-col>
             <v-col cols="6">
-              <h3>Estado</h3>
-              <v-checkbox v-model="persona.estado" :label="persona.estado ? 'Activo': 'Inactivo'" />
+              <v-text-field v-model="persona.ventaDia" label="venta del dia" @keypress="soloNumeros($event)" />
             </v-col>
           </v-row>
         </v-card-text>
@@ -66,9 +68,6 @@
         'items-per-page-text': 'Filas por pagina'
       }"
     >
-      <template v-slot:item.estado="{ item }">
-        <v-chip :color="item.estado ? 'success': 'error'"> {{ item.estado ? 'Activo': 'Inactivo' }}</v-chip>
-      </template>
       <template v-slot:item.acciones="{ item }">
         {{ item.acciones }}
         <v-btn icon @click="editar(item)">
@@ -79,6 +78,17 @@
         </v-btn>
       </template>
     </v-data-table>
+    <span>
+      total de venta por dia
+    </span>
+    <v-container>
+      <v-btn @click="sumar()">
+        calcular
+      </v-btn>
+      <span>
+        {{ total }}
+      </span>
+    </v-container>
   </div>
 </template>
 <script>
@@ -87,6 +97,8 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      total: null,
+      sumas: null,
       rowsPerPageItems: [5, 10, 15],
       index: -1,
       snackbar: false,
@@ -100,21 +112,30 @@ export default {
         },
         { text: 'Apellido', value: 'apellido' },
         { text: 'Edad', value: 'edad' },
-        { text: 'Estado', value: 'estado' },
+        { text: 'Venta por dia', value: 'ventaDia' },
         { text: 'Acciones', value: 'acciones' }
       ],
       personas: [
-        { nombre: 'angel', apellido: 'franquina', edad: '22', estado: true },
-        { nombre: 'antonio', apellido: 'cuya', edad: '23', estado: false }],
+        { nombre: 'angel', apellido: 'franquina', edad: '22', ventaDia: 100 },
+        { nombre: 'antonio', apellido: 'cuya', edad: '23', ventaDia: 200 }],
       persona: {
         nombre: '',
         apellido: '',
         edad: '',
-        estado: false
+        ventaDia: null
       }
     }
   },
   methods: {
+    sumar () {
+      this.total = 0
+      for (const i of this.personas) {
+        console.log(i.ventaDia)
+        parseInt(i.ventaDia)
+        this.total += i.ventaDia
+        console.log(this.total)
+      }
+    },
     agregar () {
       if (this.index > -1) {
         Object.assign(this.personas[this.index], this.persona)
@@ -130,6 +151,7 @@ export default {
           console.log('agregado')
           this.mensaje(true, 'error', 'Por Favor Ingresa Datos!!!')
         } else {
+          this.persona.ventaDia = parseInt(this.persona.ventaDia)
           this.personas.push(this.persona)
           console.log(this.personas)
           this.mensaje(true, 'success', 'Datos guardados correctamente!!!')
