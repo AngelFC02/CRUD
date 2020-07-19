@@ -35,6 +35,8 @@
           :items-per-page="5"
           class="elevation-1"
           :search="buscar"
+          no-data-text="Aún no hay datos disponibles"
+          no-results-text="No se encontraron resultados"
           :footer-props="{
             'items-per-page-options': rowsPerPageItems,
             'items-per-page-text': 'Filas por pagina'
@@ -42,7 +44,7 @@
         >
           <template v-slot:item.acciones="{ item }">
             {{ item.acciones }}
-            <v-menu top>
+            <v-menu lef>
               <template v-slot:activator="{ on, attrs }">
                 <v-btn
                   icon
@@ -66,7 +68,7 @@
                 </v-list-item>
                 <v-list-item>
                   <v-list-item-title>
-                    <v-btn icon>
+                    <v-btn icon @click="Eliminar(item)">
                       <v-icon>
                         mdi-delete
                       </v-icon>
@@ -82,7 +84,8 @@
     <v-dialog v-model="dialog" persistent max-width="500">
       <v-card>
         <v-card-title style="margin-bottom: 10px">
-          <span>Agregar Usuario</span>
+          <span v-if="index === -1">Agregar Usuario</span>
+          <span v-if="index > -1">Editar Usuario</span>
           <v-spacer />
           <v-btn icon @click="Salir()">
             <v-icon>
@@ -91,15 +94,15 @@
           </v-btn>
         </v-card-title>
         <v-card-text style="padding-bottom: 0px">
-          <v-text-field v-model="usuario.name" label="Nombre" outlined />
-          <v-text-field v-model="usuario.lastname" label="Apellido" outlined />
+          <v-text-field v-model="usuario.name" label="Nombre" outlined @keypress="Letras($event)" />
+          <v-text-field v-model="usuario.lastname" label="Apellido" outlined @keypress="Letras($event)" />
           <v-row>
             <v-col cols="6" style="padding-bottom: 0px">
-              <v-text-field v-model="usuario.dni" label="DNI" outlined />
+              <v-text-field v-model="usuario.dni" label="DNI" maxlength="8" outlined @keypress="Numeros($event)" />
             </v-col>
             <v-spacer />
             <v-col cols="6" style="padding-bottom: 0px">
-              <v-text-field v-model="usuario.tarjeta" label="N° de Tarjeta" outlined />
+              <v-text-field v-model="usuario.tarjeta" label="N° de Tarjeta" outlined @keypress="Numeros($event)" />
             </v-col>
           </v-row>
           <v-row>
@@ -109,6 +112,7 @@
                 :items="genero"
                 label="Genero"
                 outlined
+                @keypress="Letras($event)"
               />
             </v-col>
             <v-spacer />
@@ -117,6 +121,7 @@
                 v-model="usuario.saldo"
                 label="Dinero Total"
                 outlined
+                @keypress="Numeros($event)"
               />
             </v-col>
           </v-row>
@@ -129,7 +134,8 @@
             style="margin-right: 15px"
             @click="Agregar()"
           >
-            Agregar
+            <span v-if="index === -1">Agregar</span>
+            <span v-if="index > -1">Editar</span>
           </v-btn>
           <v-btn outlined color="red" style="margin-right: 15px" @click="Salir()">
             Cancelar
@@ -140,6 +146,8 @@
   </v-container>
 </template>
 <script>
+import Swal from 'sweetalert2'
+import formato from '~/plugins/formato'
 export default {
   data () {
     return {
@@ -175,17 +183,58 @@ export default {
   },
   methods: {
     Agregar () {
-      this.usuarios.push(this.usuario)
-      this.Salir()
+      if (this.index > -1) {
+        Object.assign(this.usuarios[this.index], this.usuario)
+        console.log('acualizado')
+        this.Salir()
+      } else if (this.index === -1) {
+        if (!this.usuario.name ||
+            !this.usuario.lastname ||
+            !this.usuario.dni ||
+            !this.usuario.genero ||
+            !this.usuario.tarjeta ||
+            !this.usuario.saldo) {
+          console.log('ingresar datos')
+        } else {
+          this.usuarios.push(this.usuario)
+          this.Salir()
+          console.log(this.index)
+        }
+      }
     },
     Editar (item) {
       this.dialog = true
       this.index = this.usuarios.indexOf(item)
       this.usuario = Object.assign({}, item)
     },
-    Eliminar () {
+    Eliminar (item) {
+      Swal.fire({
+        title: '¿Está seguro que desea eliminar?',
+        text: 'Esta acción no podrá ser revertida',
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: 'primary',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si!',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.value) {
+          Swal.fire(
+            'Eliminado!',
+            'El campo ha sido eliminado correctamente.',
+            'success'
+          )
+          this.index = this.usuarios.indexOf(item)
+          this.usuarios.splice(this.index, 1)
+          this.index = -1
+          console.log(this.index)
+          console.log(item)
+        } else {
+        }
+      })
     },
     Salir () {
+      this.index = -1
       this.dialog = false
       this.usuario = {
         name: '',
@@ -199,8 +248,11 @@ export default {
     Activar () {
       this.dialog = true
     },
-    Activar2 () {
-      this.accion = true
+    Letras (e) {
+      formato.letters(e)
+    },
+    Numeros (e) {
+      formato.numbers(e)
     }
   }
 }

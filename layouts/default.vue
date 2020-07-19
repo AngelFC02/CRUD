@@ -25,6 +25,7 @@
       </v-list>
     </v-navigation-drawer>
     <v-app-bar
+      dark
       :clipped-left="clipped"
       fixed
       app
@@ -62,6 +63,7 @@
     <!-- </v-list> -->
     <!-- </v-navigation-drawer> -->
     <v-footer
+      dark
       :fixed="fixed"
       app
     >

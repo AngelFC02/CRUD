@@ -127,7 +127,6 @@ export default {
           !this.persona.apellido ||
           !this.persona.edad
         ) {
-          console.log('agregado')
           this.mensaje(true, 'error', 'Por Favor Ingresa Datos!!!')
         } else {
           this.personas.push(this.persona)
