@@ -2,6 +2,9 @@
   <v-container
     fluid
   >
+    <v-snackbar v-model="snackbar" :color="color" :timeout="2000" top centered>
+      {{ text }}
+    </v-snackbar>
     <center>
       <h1>
         Registro de Usuarios
@@ -98,11 +101,25 @@
           <v-text-field v-model="usuario.lastname" label="Apellido" outlined @keypress="Letras($event)" />
           <v-row>
             <v-col cols="6" style="padding-bottom: 0px">
-              <v-text-field v-model="usuario.dni" label="DNI" maxlength="8" outlined @keypress="Numeros($event)" />
+              <v-text-field
+                v-model="usuario.dni"
+                label="DNI"
+                maxlength="8"
+                counter="8"
+                outlined
+                @keypress="Numeros($event)"
+              />
             </v-col>
             <v-spacer />
             <v-col cols="6" style="padding-bottom: 0px">
-              <v-text-field v-model="usuario.tarjeta" label="N° de Tarjeta" outlined @keypress="Numeros($event)" />
+              <v-text-field
+                v-model="usuario.tarjeta"
+                label="N° de Tarjeta"
+                maxlength="15"
+                counter="15"
+                outlined
+                @keypress="Numeros($event)"
+              />
             </v-col>
           </v-row>
           <v-row>
@@ -151,6 +168,9 @@ import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      snackbar: false,
+      color: '',
+      text: '',
       accion: false,
       index: -1,
       dialog: false,
@@ -186,6 +206,7 @@ export default {
       if (this.index > -1) {
         Object.assign(this.usuarios[this.index], this.usuario)
         console.log('acualizado')
+        this.Mensaje(true, 'success', 'Actualizado Correctamente!!')
         this.Salir()
       } else if (this.index === -1) {
         if (!this.usuario.name ||
@@ -194,9 +215,11 @@ export default {
             !this.usuario.genero ||
             !this.usuario.tarjeta ||
             !this.usuario.saldo) {
+          this.Mensaje(true, 'error', 'Completar los Campos faltantes!!')
           console.log('ingresar datos')
         } else {
           this.usuarios.push(this.usuario)
+          this.Mensaje(true, 'success', 'Agregado Correctamente!!')
           this.Salir()
           console.log(this.index)
         }
@@ -234,6 +257,7 @@ export default {
       })
     },
     Salir () {
+      this.Mensaje(true, 'warning', 'No se efectuaron cambios!!')
       this.index = -1
       this.dialog = false
       this.usuario = {
@@ -244,6 +268,11 @@ export default {
         genero: '',
         saldo: ''
       }
+    },
+    Mensaje (snackbar, color, text) {
+      this.snackbar = snackbar
+      this.color = color
+      this.text = text
     },
     Activar () {
       this.dialog = true
