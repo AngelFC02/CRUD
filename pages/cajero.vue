@@ -80,7 +80,7 @@
                 <v-col cols="6">
                   <v-select
                     v-model="usuario.genero"
-                    :items="genero"
+                    :items="retiros"
                     label="Numero de retiros diarios"
                     outlined
                     @keypress="Letras($event)"
