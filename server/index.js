@@ -46,7 +46,7 @@ async function start () {
   app.use(bodyParser.urlencoded({ extended: false }))
 
   app.use(cors())
-  app.use('/api/v1', router)
+  app.use('/api/', router)
   // Init Nuxt.js
   const nuxt = new Nuxt(nuxtCfg)
 

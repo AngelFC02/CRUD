@@ -124,7 +124,7 @@
           </v-row>
           <v-row>
             <v-col cols="4" style="padding: 0px 0px 0px 10px">
-              <v-combobox
+              <v-select
                 v-model="usuario.genero"
                 :items="genero"
                 label="Genero"
