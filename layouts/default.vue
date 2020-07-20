@@ -99,6 +99,11 @@ export default {
           icon: 'mdi-account',
           title: 'Usuarios',
           to: '/CrudCajero'
+        },
+        {
+          icon: 'mdi-cat',
+          title: 'Pruebas',
+          to: '/cajero'
         }
       ],
       miniVariant: false,
