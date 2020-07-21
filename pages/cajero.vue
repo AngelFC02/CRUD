@@ -1,5 +1,8 @@
 <template>
-  <v-container>
+  <v-container fluid>
+    <v-snackbar v-model="snackbar" :color="color" :timeout="2000" top>
+      {{ text }}
+    </v-snackbar>
     <center><h1>Usuarios</h1></center>
     <v-row>
       <v-tabs>
@@ -7,7 +10,7 @@
           Usuario
         </v-tab>
         <v-tab-item>
-          <v-container>
+          <v-container col>
             <v-card-title>
               Agregar Usuario
             </v-card-title>
@@ -25,7 +28,6 @@
                     @keypress="Numeros($event)"
                   />
                 </v-col>
-                <v-spacer />
                 <v-col cols="4">
                   <v-select
                     v-model="usuario.genero"
@@ -71,15 +73,15 @@
               <v-row>
                 <v-col cols="6">
                   <v-text-field
-                    v-model="usuario.saldo"
+                    v-model="usuario.maxRetiro"
                     label="Maximo retiro"
                     outlined
                     @keypress="Numeros($event)"
                   />
                 </v-col>
-                <v-col cols="6">
+                <v-col cols="3">
                   <v-select
-                    v-model="usuario.genero"
+                    v-model="usuario.intentos"
                     :items="retiros"
                     label="Numero de retiros diarios"
                     outlined
@@ -88,10 +90,22 @@
                 </v-col>
               </v-row>
             </v-card-text>
+            <v-card-actions>
+              <v-btn color="success" @click="Agregar()">
+                Agregar
+              </v-btn>
+              <v-btn color="error" outlined @click="Salir()">
+                Cancelar
+              </v-btn>
+            </v-card-actions>
           </v-container>
         </v-tab-item>
       </v-tabs>
     </v-row>
+    <v-data-table
+      :headers="headers"
+      :items="usuarios"
+    />
   </v-container>
 </template>
 
@@ -117,12 +131,11 @@ export default {
         { text: 'N° de tarjeta', value: 'tarjeta' },
         { text: 'Genero', value: 'genero' },
         { text: 'Saldo', value: 'saldo' },
-        { text: 'Fecha Incripción', value: 'fecha' },
-        { text: 'Acciones', value: 'acciones' }
+        { text: 'Maximo Retiro', value: 'maxRetiro' },
+        { text: 'Intentos', value: 'intentos' }
       ],
       usuarios: [
-        { name: 'Angel', lastname: 'Cuya', dni: '12345678', tarjeta: '12345678', genero: 'masculino', saldo: 1200, fecha: ' / / ' },
-        { name: 'Antonio', lastname: 'Franquina', dni: '12345678', tarjeta: '87654321', genero: 'masculino', saldo: 1200, fecha: ' / / ' }
+        { name: 'Angel', lastname: 'Cuya', dni: '12345678', tarjeta: '12345678', genero: 'masculino', saldo: 1200, maxRetiro: 100, retiro: null, intentos: 3, fecha: null }
       ],
       usuario: {
         name: '',
@@ -130,7 +143,10 @@ export default {
         dni: '',
         tarjeta: '',
         genero: '',
-        saldo: ''
+        saldo: '',
+        maxRetiro: '',
+        retiro: '',
+        intentos: ''
       },
       buscar: ''
     }
@@ -141,20 +157,20 @@ export default {
         Object.assign(this.usuarios[this.index], this.usuario)
         console.log('acualizado')
         this.Mensaje(true, 'success', 'Actualizado Correctamente!!')
-        this.Salir()
       } else if (this.index === -1) {
         if (!this.usuario.name ||
             !this.usuario.lastname ||
             !this.usuario.dni ||
             !this.usuario.genero ||
             !this.usuario.tarjeta ||
-            !this.usuario.saldo) {
+            !this.usuario.saldo ||
+            !this.usuario.maxRetiro ||
+            !this.usuario.intentos) {
           this.Mensaje(true, 'error', 'Completar los Campos faltantes!!')
           console.log('ingresar datos')
         } else {
           this.usuarios.push(this.usuario)
           this.Mensaje(true, 'success', 'Agregado Correctamente!!')
-          this.Salir()
           console.log(this.index)
         }
       }
@@ -200,7 +216,10 @@ export default {
         dni: '',
         tarjeta: '',
         genero: '',
-        saldo: ''
+        saldo: '',
+        maxRetiro: '',
+        retiro: '',
+        intentos: ''
       }
     },
     Mensaje (snackbar, color, text) {
