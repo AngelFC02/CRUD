@@ -104,6 +104,16 @@ export default {
           icon: 'mdi-cat',
           title: 'Pruebas',
           to: '/cajero'
+        },
+        {
+          icon: 'mdi-dog',
+          title: 'Otros',
+          to: '/otro2'
+        },
+        {
+          icon: 'mdi-phone',
+          title: 'whatsapp',
+          to: '/whatsapp'
         }
       ],
       miniVariant: false,

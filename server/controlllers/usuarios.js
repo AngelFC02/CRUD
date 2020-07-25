@@ -30,10 +30,10 @@ function GetUsuarios (req, res) {
 }
 function GetUsuario (req, res) {
   const usuarioID = req.params.usuarioID
-  Usuario.findById(usuarioID, (err, usuarios) => {
+  Usuario.findById(usuarioID, (err, usuario) => {
     if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-    if (usuarios) { res.status(404).send({ message: 'No se encuentra usuarios' }) }
-    res.status(200).send({ usuarios })
+    if (usuario) { res.status(404).send({ message: 'No se encuentra usuarios' }) }
+    res.status(200).send({ usuario })
   })
 }
 function UpdateUsuario (req, res) {

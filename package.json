@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@nuxtjs/axios": "^5.3.6",
+    "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "cross-env": "^5.2.0",
@@ -20,7 +21,8 @@
     "mongoose": "^5.9.25",
     "nuxt": "^2.0.0",
     "sweetalert2": "^9.15.1",
-    "universal-cookie-express": "^4.0.3"
+    "universal-cookie-express": "^4.0.3",
+    "vuelidate": "^0.7.5"
   },
   "devDependencies": {
     "nodemon": "^1.18.9",
