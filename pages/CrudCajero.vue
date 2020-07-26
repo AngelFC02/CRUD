@@ -38,6 +38,7 @@
           :items-per-page="5"
           class="elevation-1"
           :search="buscar"
+          disable-sort
           no-data-text="Aún no hay datos disponibles"
           no-results-text="No se encontraron resultados"
           :footer-props="{

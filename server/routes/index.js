@@ -6,7 +6,7 @@ const api = express.Router()
 
 api.post('/usuario', UsuarioCtrl.CreateUsuario)
 api.get('/usuario', UsuarioCtrl.GetUsuarios)
-api.get('/usuario/:usuarioId', UsuarioCtrl.GetUsuarios)
+api.get('/usuario/:usuarioId', UsuarioCtrl.GetUsuario)
 api.put('/usuario/:usuarioId', UsuarioCtrl.UpdateUsuario)
 api.delete('/usuario/:usuarioId', UsuarioCtrl.DeleteUsuario)
 

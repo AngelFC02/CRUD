@@ -103,9 +103,17 @@
   </v-container>
 </template>
 <script>
+import axios from 'axios'
+import config from '../config'
 import formato from '~/plugins/formato'
 export default {
   props: {
+    // eslint-disable-next-line object-shorthand
+    usuario2: { type: Object, default: function () { return {} } },
+    // eslint-disable-next-line object-shorthand
+    index: { type: Number, default: -1 },
+    // eslint-disable-next-line object-shorthand
+    identificador: { type: String, default: '' },
     modaltabs: { type: Boolean, default: false }
   },
   data () {
@@ -122,15 +130,64 @@ export default {
         intentos: ''
       },
       genero: ['Masculino', 'Femenino'],
-      retiros: ['1', '2', '3']
+      retiros: [1, 2, 3]
     }
+  },
+  watch: {
+    async identificador (value) {
+      const self = this
+      console.log(value, 'identificador')
+      try {
+        const data = await axios.get(`${config.URL}usuario/${value}`)
+        self.usuario = Object.assign({}, data.data.usuario)
+        console.log(data)
+      } catch (error) {
+        console.log(error.response, 'aqui el error')
+      }
+      // this.usuario = Object.assign({}, value)
+    }
+    // usuario2 (value) {
+    //   console.log(value, 'usuario2')
+    //   this.usuario = Object.assign({}, value)
+    // }
   },
   methods: {
     close () {
       this.$emit('close', false)
+      this.usuario = {
+        name: '',
+        lastname: '',
+        dni: '',
+        tarjeta: '',
+        genero: '',
+        saldo: '',
+        maxRetiro: '',
+        retiro: '',
+        intentos: ''
+      }
     },
-    save () {
-      this.$emit('save', this.usuario)
+    async save () {
+      const self = this
+      if (this.index > -1) {
+        try {
+          const data = await axios.put(`${config.URL}usuario/${self.usuario._id}`, self.usuario)
+          self.$emit('update', self.usuario)
+          console.log(self.usuario)
+          console.log(data)
+          self.close()
+        } catch (error) {
+          console.log(error.response, 'aqui el error')
+        }
+      } else {
+        try {
+          const data = await axios.post(`${config.URL}usuario`, self.usuario)
+          self.$emit('save', data.data.usuario)
+          console.log(data.data.usuario)
+          self.close()
+        } catch (error) {
+          console.log(error.response, 'aqui el error')
+        }
+      }
     },
     Letras (e) {
       formato.letters(e)

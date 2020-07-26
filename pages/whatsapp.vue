@@ -56,13 +56,11 @@
           </div>
         </v-container>
       </v-col>
-      <div class="divmsj">
-        <v-col>
-          <div align="center">
-            <v-img src="whtpp.jpg" width="300" aling="center" />
-          </div>
-        </v-col>
-      </div>
+      <v-col cols="9" class="divmsj">
+        <div align="center">
+          <v-img src="whtpp.jpg" width="300" class="img" />
+        </div>
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -96,11 +94,19 @@ export default {
   align-content: center;
 }
 .divmsj {
-  background-color: #CFCFCF;
+  margin-left: 500px;
+  background-color:#fafbfb;
+  margin-right: 30px;
   color: white;
-  border-radius: 5px;
-  border: 1px solid black;;
+  height: 545px;
   margin: 0px;
   padding: 0px;
+}
+.img {
+  align-content: center;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  margin-top: 100px;
 }
 </style>

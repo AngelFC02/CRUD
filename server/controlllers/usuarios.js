@@ -13,7 +13,6 @@ function CreateUsuario (req, res) {
   usuario.maxRetiro = req.body.maxRetiro
   usuario.retiro = req.body.retiro
   usuario.intentos = req.body.intentos
-  usuario.fecha = req.body.fecha
 
   usuario.save((err, usuario) => {
     // eslint-disable-next-line curly
@@ -29,20 +28,20 @@ function GetUsuarios (req, res) {
   })
 }
 function GetUsuario (req, res) {
-  const usuarioID = req.params.usuarioID
-  Usuario.findById(usuarioID, (err, usuario) => {
+  const usuarioId = req.params.usuarioId
+  Usuario.findById(usuarioId, (err, usuario) => {
     if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-    if (usuario) { res.status(404).send({ message: 'No se encuentra usuarios' }) }
+    if (!usuario) { res.status(404).send({ message: 'No se encuentra usuarios' }) }
     res.status(200).send({ usuario })
   })
 }
 function UpdateUsuario (req, res) {
   const usuarioId = req.params.usuarioId
   const update = req.body
-  Usuario.findByIdAndUpdate(usuarioId, update, (err, productUpdate) => {
+  Usuario.findByIdAndUpdate(usuarioId, update, (err, usuarioUpdate) => {
     if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-    if (!productUpdate) { res.status(404).send({ message: 'No se encontro el producto' }) }
-    res.status(200).send({ productUpdate })
+    if (!usuarioUpdate) { res.status(404).send({ message: 'No se encontro el producto' }) }
+    res.status(200).send({ message: 'Se actualizaron los datos' })
   })
 }
 function DeleteUsuario (req, res) {
