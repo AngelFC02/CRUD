@@ -108,7 +108,7 @@ export default {
         {
           icon: 'mdi-dog',
           title: 'Otros',
-          to: '/otro2'
+          to: '/prueba2'
         },
         {
           icon: 'mdi-phone',

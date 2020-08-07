@@ -3,63 +3,23 @@
     <v-snackbar v-model="snackbar" top :color="color" :timeout="2000">
       {{ text }}
     </v-snackbar>
+    <cliente-modal
+      :dialogo="dialogo"
+      :index="index"
+      :identificador="id"
+      @close="close"
+      @save="save"
+      @update="update"
+    />
     <h1><center>Lista de Trabajadores</center></h1>
     <v-btn text @click="activar()">
       <v-icon>mdi-plus</v-icon>
     </v-btn>
-    <v-dialog v-model="dialogo" max-width="500" persistent>
-      <v-card>
-        <v-card-title>
-          <span v-if="index > -1">Editar Datos</span>
-          <span v-if="index === -1">Agregar Datos</span>
-          <v-spacer />
-          <v-btn icon color @click="sincambios()">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
-        </v-card-title>
-        <v-card-text>
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                v-model="persona.nombre"
-                label="Nombre"
-                @keypress="soloLetras($event)"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <v-text-field
-                v-model="persona.apellido"
-                label="Apellido"
-                @keypress="soloLetras($event)"
-              />
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="4">
-              <v-text-field v-model="persona.edad" label="Edad" maxlength="2" @keypress="soloNumeros($event)" />
-            </v-col>
-            <v-col cols="6">
-              <h3>Estado</h3>
-              <v-checkbox v-model="persona.estado" :label="persona.estado ? 'Activo': 'Inactivo'" />
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="agregar()">
-            <span v-if="index > -1">Actualizar</span>
-            <span v-if="index === -1">Agregar</span>
-          </v-btn>
-          <v-btn @click="sincambios()">Cancelar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
     <v-data-table
       :headers="headers"
-      :items="personas"
+      :items="clientes"
       :items-per-page="5"
+      no-data-text="Aún no hay datos"
       class="elevation-1"
       :footer-props="{
         'items-per-page-options': rowsPerPageItems,
@@ -69,22 +29,70 @@
       <template v-slot:item.estado="{ item }">
         <v-chip :color="item.estado ? 'success': 'error'"> {{ item.estado ? 'Activo': 'Inactivo' }}</v-chip>
       </template>
+      <template v-slot:item.fecha="{item}">
+        {{ formatFecha(item.fecha) }}
+      </template>
       <template v-slot:item.acciones="{ item }">
         {{ item.acciones }}
-        <v-btn icon @click="editar(item)">
-          <v-icon>mdi-pencil</v-icon>
-        </v-btn>
-        <v-btn icon @click="eliminar(item)">
-          <v-icon>mdi-delete</v-icon>
-        </v-btn>
+        <v-menu lef>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              icon
+              v-bind="attrs"
+              v-on="on"
+            >
+              <v-icon>
+                mdi-dots-vertical
+              </v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item>
+              <v-list-item-title>
+                <v-btn icon @click="editar(item)">
+                  <v-icon>mdi-pencil</v-icon>
+                </v-btn>
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>
+                <v-btn icon @click="eliminar(item)">
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>
+                <v-btn text @click="editarEstado(item)">
+                  <span v-if="item.estado === true">Inhabilitar</span>
+                  <span v-if="item.estado === false">Habilitar</span>
+                </v-btn>
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </template>
     </v-data-table>
   </div>
 </template>
 <script>
+
+import axios from 'axios'
 import Swal from 'sweetalert2'
-import formato from '~/plugins/formato'
+import config from '../config'
+import clienteModal from '~/components/cliente'
 export default {
+  components: {
+    clienteModal
+  },
+  async asyncData () {
+    try {
+      const data = await axios.get(`${config.URL}cliente`)
+      return { clientes: data.data.cliente }
+    } catch (error) {
+      console.log(error)
+    }
+  },
   data () {
     return {
       rowsPerPageItems: [5, 10, 15],
@@ -94,56 +102,50 @@ export default {
       text: '',
       dialogo: false,
       headers: [
-        {
-          text: 'Nombre',
-          value: 'nombre'
-        },
+        { text: 'Nombre', value: 'nombre' },
         { text: 'Apellido', value: 'apellido' },
         { text: 'Edad', value: 'edad' },
+        { text: 'DNI', value: 'dni' },
         { text: 'Estado', value: 'estado' },
+        { text: 'Fecha Inscripcion', value: 'fecha' },
         { text: 'Acciones', value: 'acciones' }
       ],
-      personas: [
-        { nombre: 'angel', apellido: 'franquina', edad: '22', estado: true },
-        { nombre: 'antonio', apellido: 'cuya', edad: '23', estado: false }],
-      persona: {
-        nombre: '',
-        apellido: '',
-        edad: '',
-        estado: false
-      }
+      clientes: [],
+      id: ''
     }
   },
   methods: {
-    agregar () {
-      if (this.index > -1) {
-        Object.assign(this.personas[this.index], this.persona)
-        this.mensaje(true, 'success', 'Datos Actualizados correctamente!!!')
-        console.log(this.personas)
-        this.salir()
-      } else if (this.index === -1) {
-        if (
-          !this.persona.nombre ||
-          !this.persona.apellido ||
-          !this.persona.edad
-        ) {
-          this.mensaje(true, 'error', 'Por Favor Ingresa Datos!!!')
-        } else {
-          this.personas.push(this.persona)
-          console.log(this.personas)
-          this.mensaje(true, 'success', 'Datos guardados correctamente!!!')
-          this.salir()
-        }
-      }
+    save (item) {
+      this.clientes.push(item)
+      this.close()
+      this.mensaje(true, 'success', 'Datos guardados correctamente!!!')
+      console.log(this.clientes, 'save page')
+      console.log(item, 'save page')
+    },
+    update (value) {
+      Object.assign(this.clientes[this.index], value)
     },
     editar (item) {
-      this.index = this.personas.indexOf(item)
-      this.persona = Object.assign({}, item)
-      console.log(this.index)
-      console.log(this.personas)
+      this.index = this.clientes.indexOf(item)
+      this.cliente = Object.assign({}, item)
+      this.id = item._id
+      console.log(this.cliente._id)
       this.activar()
     },
+    async editarEstado (item) {
+      // const self = this
+      item.estado = !item.estado
+      try {
+        const data = await axios.put(`${config.URL}estado/${item._id}`, { estado: item.estado })
+        console.log(item.estado)
+        console.log(data)
+      } catch (error) {
+        console.log(error, 'update estado')
+      }
+      console.log(item)
+    },
     eliminar (item) {
+      const self = this
       Swal.fire({
         title: '¿Está seguro que desea eliminar?',
         text: '',
@@ -153,53 +155,60 @@ export default {
         cancelButtonColor: '#d33',
         confirmButtonText: 'Si!',
         cancelButtonText: 'Cancelar'
-      }).then((result) => {
+      }).then(async (result) => {
         if (result.value) {
           Swal.fire(
             'Eliminado!',
             'El campo ha sido eliminado correctamente.',
             'success'
           )
-          this.index = this.personas.indexOf(item)
-          this.personas.splice(this.index, 1)
-          this.index = -1
-        } else {
+          self.index = self.clientes.indexOf(item)
+          try {
+            const data = await axios.delete(`${config.URL}cliente/${item._id}`)
+            self.clientes.splice(self.index, 1)
+            self.index = -1
+            console.log(data)
+          } catch (error) {
+            self.index = -1
+            console.log(error, 'error delete')
+          }
         }
       })
-      // this.index = this.personas.indexOf(item)
-      // this.personas.splice(this.index, 1)
+      // this.index = this.clientes.indexOf(item)
+      // this.clientes.splice(this.index, 1)
+    },
+    formatFecha (value) {
+      const date = new Date(value)
+      const day = date.getDate()
+      const month = date.getMonth() + 1
+      const year = date.getFullYear()
+
+      if (month < 10) {
+        // console.log(`${day}-0${month}-${year}`)
+        return `${day}-0${month}-${year}`
+      } else {
+        // console.log(`${day}-${month}-${year}`)
+        return `${day}-${month}-${year}`
+      }
     },
     activar () {
       this.dialogo = true
     },
-    sincambios () {
+    close (value) {
+      this.id = ''
       this.dialogo = false
-      this.persona = {
+      this.index = -1
+      this.cliente = {
         nombre: '',
         apellido: '',
         edad: ''
       }
       this.mensaje(true, 'error', 'No se efectuaron cambios . . .')
-      this.index = -1
-    },
-    salir () {
-      this.dialogo = false
-      this.persona = {
-        nombre: '',
-        apellido: '',
-        edad: ''
-      }
     },
     mensaje (snackbar, color, text) {
       this.snackbar = snackbar
       this.color = color
       this.text = text
-    },
-    soloLetras (e) {
-      formato.letters(e)
-    },
-    soloNumeros (e) {
-      formato.numbers(e)
     }
   }
 }

@@ -5,12 +5,11 @@
     </v-snackbar>
     <modal
       :modaltabs="dialog"
-      :usuario2="usuario"
-      :identificador="id"
+      :usuarios2="usuario"
       :index="index"
       @update="update"
-      @close="salir"
-      @save="guardar"
+      @close="close"
+      @save="save"
     />
     <center><h1>Usuarios</h1></center>
     <v-row>
@@ -52,7 +51,7 @@
           <v-list>
             <v-list-item>
               <v-list-item-title>
-                <v-btn icon @click="Editar(item)">
+                <v-btn icon @click="editar(item)">
                   <v-icon>
                     mdi-pencil
                   </v-icon>
@@ -61,10 +60,17 @@
             </v-list-item>
             <v-list-item>
               <v-list-item-title>
-                <v-btn icon @click="Eliminar(item)">
+                <v-btn icon @click="eliminar(item)">
                   <v-icon>
                     mdi-delete
                   </v-icon>
+                </v-btn>
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item>
+              <v-list-item-title>
+                <v-btn text @click="editarestado(item)">
+                  Inhabilitar
                 </v-btn>
               </v-list-item-title>
             </v-list-item>
@@ -76,8 +82,8 @@
 </template>
 
 <script>
-import axios from 'axios'
 import Swal from 'sweetalert2'
+import axios from 'axios'
 import config from '../config'
 import modal from '~/components/modalTabs'
 
@@ -85,12 +91,12 @@ export default {
   components: {
     modal
   },
-  async asyncData ({ params }) {
+  async asyncData () {
     try {
-      const usuarios = await axios.get(`${config.URL}usuario`)
-      return { usuarios: usuarios.data.usuarios }
+      const data = await axios.get(`${config.URL}usuario`)
+      return { usuarios: data.data.usuarios }
     } catch (error) {
-      console.log(error.response, 'error asyncdata')
+      console.log(error, 'asyncData')
     }
   },
   data () {
@@ -119,50 +125,54 @@ export default {
         { text: 'Acciones', value: 'acciones' }
       ],
       usuarios: [],
-      buscar: ''
+      buscar: '',
+      usuario: {
+        name: '',
+        lastname: '',
+        dni: '',
+        tarjeta: '',
+        genero: '',
+        saldo: '',
+        maxRetiro: '',
+        retiro: '',
+        intentos: ''
+      }
     }
   },
   methods: {
+    save (item) {
+      this.usuarios.push(item)
+      this.close()
+    },
+    update (value) {
+      Object.assign(this.usuarios[this.index], value)
+    },
+    editar (item) {
+      this.dialog = true
+      this.index = this.usuarios.indexOf(item)
+      this.usuario = Object.assign({}, item)
+      console.log(item)
+      console.log(this.index)
+    },
     formatFecha (value) {
       const date = new Date(value)
-
       const day = date.getDate()
       const month = date.getMonth() + 1
       const year = date.getFullYear()
 
       if (month < 10) {
-        console.log(`${day}-0${month}-${year}`)
+        // console.log(`${day}-0${month}-${year}`)
         return `${day}-0${month}-${year}`
       } else {
-        console.log(`${day}-${month}-${year}`)
+        // console.log(`${day}-${month}-${year}`)
         return `${day}-${month}-${year}`
       }
     },
-    guardar (item) {
-      this.usuarios.push(item)
-      this.salir()
-      console.log(this.usuarios)
-      console.log(this.usuario)
+    editarestado (item) {
+      console.log(item.name)
     },
-    update (value) {
-      Object.assign(this.usuarios[this.index], value)
-    },
-    Editar (item) {
-      this.dialog = true
-      this.index = this.usuarios.indexOf(item)
-      this.id = item._id
-      console.log(item)
-      console.log(this.index)
-    },
-    // Editar (item) {
-    //   this.dialog = true
-    //   this.index = this.usuarios.indexOf(item)
-    //   this.usuario = Object.assign({}, item)
-    //   console.log(item)
-    //   console.log(this.index)
-    // },
-    Eliminar (item) {
-      const self = this
+    eliminar (item) {
+      // const self = this
       Swal.fire({
         title: '¿Está seguro que desea eliminar?',
         text: 'Esta acción no podrá ser revertida',
@@ -179,31 +189,28 @@ export default {
             'El campo ha sido eliminado correctamente.',
             'success'
           )
-          self.index = self.usuarios.indexOf(item)
+          console.log(item._id)
+          const self = this
           try {
             const data = await axios.delete(`${config.URL}usuario/${item._id}`)
-            console.log(self.usuario)
-            self.usuarios.splice(self.index, 1)
-            self.index = -1
+            self.index = self.usuarios.indexOf(item)
             console.log(self.index)
-            console.log(item)
+            self.usuarios.splice(self.index, 1)
             console.log(data)
-            self.close()
+            console.log(item._id)
           } catch (error) {
-            self.index = -1
-            console.log(error.response, 'aqui el error')
+            console.log(error, 'delete')
           }
-        } else {
         }
       })
     },
-    salir (value) {
-      console.log(value, 'llego')
+    close (value) {
+      // console.log(value, 'llego')
       this.id = ''
       this.index = -1
       this.dialog = value
     },
-    Mensaje (snackbar, color, text) {
+    mensaje (snackbar, color, text) {
       this.snackbar = snackbar
       this.color = color
       this.text = text

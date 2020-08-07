@@ -59,6 +59,7 @@
       <v-col cols="9" class="divmsj">
         <div align="center">
           <v-img src="whtpp.jpg" width="300" class="img" />
+          <div class="texto">Mantente conectado :v</div>
         </div>
       </v-col>
     </v-row>
@@ -108,5 +109,11 @@ export default {
   margin-right: auto;
   display: block;
   margin-top: 100px;
+}
+.texto {
+  color: black;
+  position: absolute;
+  top: 72%;
+  left: 55%;
 }
 </style>

@@ -39,9 +39,18 @@ function UpdateUsuario (req, res) {
   const usuarioId = req.params.usuarioId
   const update = req.body
   Usuario.findByIdAndUpdate(usuarioId, update, (err, usuarioUpdate) => {
-    if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-    if (!usuarioUpdate) { res.status(404).send({ message: 'No se encontro el producto' }) }
+    if (err) { return res.status(500).send({ message: `Error en la base de datos ${err}` }) }
+    if (!usuarioUpdate) { return res.status(404).send({ message: 'No se encontro el producto' }) }
     res.status(200).send({ message: 'Se actualizaron los datos' })
+  })
+}
+function UpdateEstado (req, res) {
+  const usuarioId = req.params.usuarioId
+  const update = req.body
+  Usuario.findByIdAndUpdate(usuarioId, update, (err, estadoUpdate) => {
+    if (err) { return res.status(500).send({ message: `Error en la base de datos ${err}` }) }
+    if (!estadoUpdate) { return res.status(404).send({ message: 'No se encuentra el usuario' }) }
+    res.status(200).send({ message: 'Se actualizo correctamente' })
   })
 }
 function DeleteUsuario (req, res) {
@@ -61,5 +70,6 @@ module.exports = {
   GetUsuario,
   GetUsuarios,
   UpdateUsuario,
-  DeleteUsuario
+  DeleteUsuario,
+  UpdateEstado
 }
