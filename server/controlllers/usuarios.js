@@ -4,8 +4,8 @@ const Usuario = require('../models/usuarios')
 function CreateUsuario (req, res) {
   console.log(req.body)
   const usuario = new Usuario()
-  usuario.name = req.body.name
-  usuario.lastname = req.body.lastname
+  usuario.nombre = req.body.nombre
+  usuario.apellido = req.body.apellido
   usuario.dni = req.body.dni
   usuario.tarjeta = req.body.tarjeta
   usuario.genero = req.body.genero

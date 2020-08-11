@@ -7,6 +7,7 @@
       :modaltabs="dialog"
       :usuarios2="usuario"
       :index="index"
+      :identificador="id"
       @update="update"
       @close="close"
       @save="save"
@@ -67,13 +68,6 @@
                 </v-btn>
               </v-list-item-title>
             </v-list-item>
-            <v-list-item>
-              <v-list-item-title>
-                <v-btn text @click="editarestado(item)">
-                  Inhabilitar
-                </v-btn>
-              </v-list-item-title>
-            </v-list-item>
           </v-list>
         </v-menu>
       </template>
@@ -113,8 +107,8 @@ export default {
       retiros: ['1', '2', '3', '4'],
       genero: ['Masculino', 'Femenino'],
       headers: [
-        { text: 'Nombre', value: 'name', sortable: false },
-        { text: 'Apellido', value: 'lastname' },
+        { text: 'nombre', value: 'nombre', sortable: false },
+        { text: 'apellido', value: 'apellido' },
         { text: 'DNI', value: 'dni' },
         { text: 'N° de tarjeta', value: 'tarjeta' },
         { text: 'Genero', value: 'genero' },
@@ -127,8 +121,8 @@ export default {
       usuarios: [],
       buscar: '',
       usuario: {
-        name: '',
-        lastname: '',
+        nombre: '',
+        apellido: '',
         dni: '',
         tarjeta: '',
         genero: '',
@@ -151,7 +145,8 @@ export default {
       this.dialog = true
       this.index = this.usuarios.indexOf(item)
       this.usuario = Object.assign({}, item)
-      console.log(item)
+      this.id = item._id
+      console.log(this.id, 'page')
       console.log(this.index)
     },
     formatFecha (value) {
@@ -169,7 +164,7 @@ export default {
       }
     },
     editarestado (item) {
-      console.log(item.name)
+      console.log(item.nombre)
     },
     eliminar (item) {
       // const self = this
@@ -198,6 +193,7 @@ export default {
             self.usuarios.splice(self.index, 1)
             console.log(data)
             console.log(item._id)
+            this.index = -1
           } catch (error) {
             console.log(error, 'delete')
           }
@@ -205,10 +201,20 @@ export default {
       })
     },
     close (value) {
-      // console.log(value, 'llego')
       this.id = ''
       this.index = -1
       this.dialog = value
+      this.usuario = {
+        nombre: '',
+        apellido: '',
+        dni: '',
+        tarjeta: '',
+        genero: '',
+        saldo: '',
+        maxRetiro: '',
+        retiro: '',
+        intentos: ''
+      }
     },
     mensaje (snackbar, color, text) {
       this.snackbar = snackbar

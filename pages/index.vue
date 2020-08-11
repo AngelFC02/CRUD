@@ -23,7 +23,8 @@
       class="elevation-1"
       :footer-props="{
         'items-per-page-options': rowsPerPageItems,
-        'items-per-page-text': 'Filas por pagina'
+        'items-per-page-text': 'Filas por pagina',
+        pageText: '{0}-{0} de {1}'
       }"
     >
       <template v-slot:item.estado="{ item }">

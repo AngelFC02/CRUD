@@ -62,7 +62,7 @@
             </v-list-item>
             <v-list-item @click="editarestado(item)">
               <v-list-item-title>
-                Inhabilitar
+                <span> {{ item.estado ? 'Inhabilitar' : 'Habilitar' }}</span>
               </v-list-item-title>
             </v-list-item>
           </v-list>
@@ -73,6 +73,7 @@
 </template>
 <script>
 import axios from 'axios'
+import Swal from 'sweetalert2'
 import config from '../config'
 import dialogModal from '../components/prueba'
 export default {
@@ -134,12 +135,38 @@ export default {
       }
     },
     eliminar (item) {
-      this.index = this.productos.indexOf(item)
-      this.productos.splice(this.index, 1)
-      console.log()
+      const self = this
+      Swal.fire({
+        title: 'Seguro que desea Eliminar?',
+        text: 'Esta acción no puede revertirse!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, eliminar!'
+      }).then(async (result) => {
+        if (result.value) {
+          Swal.fire(
+            'Eliminado!',
+            'Campo eliminado correctamente',
+            'success'
+          )
+          this.index = this.productos.indexOf(item)
+          try {
+            const data = await axios.delete(`${config.URL}producto/${item._id}`)
+            self.productos.splice(self.index, 1)
+            self.index = -1
+            console.log(data)
+          } catch (error) {
+            console.log(error)
+          }
+        }
+      })
     },
     salir (value) {
+      this.index = -1
       this.dialog = value
+      this.id = ''
     }
   }
 }

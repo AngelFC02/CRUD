@@ -4,8 +4,8 @@ const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
 const UserSchema = Schema({
-  name: String,
-  lastname: String,
+  nombre: String,
+  apellido: String,
   dni: Number,
   tarjeta: Number,
   genero: String,

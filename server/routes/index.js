@@ -25,6 +25,6 @@ api.get('/producto', ProductoCtrl.getProducts)
 api.get('/producto/:productoId', ProductoCtrl.getProduct)
 api.put('/producto/:productoId', ProductoCtrl.putProduct)
 api.put('/productoEstado/:productoId', ProductoCtrl.putEstado)
-api.delete('producto/:productoId', ProductoCtrl.deleteProduct)
+api.delete('/producto/:productoId', ProductoCtrl.deleteProduct)
 
 module.exports = api

@@ -22,6 +22,7 @@ module.exports = {
     "vue/singleline-html-element-content-newline": "off",
      "vue/valid-v-on": "off",
      "vue/no-use-v-if-with-v-for": "off",
+    // "vue/valid-v-slot" : "off",
     "vue/multiline-html-element-content-newline": "off"
   }
 }

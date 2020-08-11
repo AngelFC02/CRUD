@@ -57,7 +57,7 @@ function deleteCliente (req, res) {
     if (!cliente) { return res.status(404).send({ message: 'No se encontro el cliente' }) }
     cliente.remove((err) => {
       if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-      res.status(200).send({ message: 'El producto fue eliminado' })
+      res.status(200).send({ message: 'El cliente fue eliminado' })
     })
   })
 }

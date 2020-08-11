@@ -50,6 +50,15 @@ function getProduct (req, res) {
   })
 }
 function deleteProduct (req, res) {
+  const productoId = req.params.productoId
+  Producto.findById(productoId, (err, producto) => {
+    if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
+    if (!producto) { res.status(404).send({ message: 'No se encuentra' }) }
+    producto.remove((err) => {
+      if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
+      res.status(200).send({ message: 'El cliente fue eliminado' })
+    })
+  })
 }
 
 module.exports = {
