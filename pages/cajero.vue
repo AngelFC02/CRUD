@@ -14,16 +14,23 @@
     />
     <center><h1>Usuarios</h1></center>
     <v-row>
-      <v-btn color="primary" style="margin-top: 10px" @click="dialog = true">
+      <v-btn color="primary" style="margin-top: 10px" @click="dialog=true">
         agregar
       </v-btn>
       <v-spacer />
-      <v-text-field v-model="Buscar" prepend-inner-icon="mdi-magnify" placeholder="Buscar" outlined />
+      <v-text-field
+        v-model="buscar"
+        prepend-inner-icon="mdi-magnify"
+        placeholder="Buscar"
+        outlined
+        clearable
+        @keypress.enter="buscarNomber()"
+        @click:clear="limpiarBuscar()"
+      />
     </v-row>
     <v-data-table
       :headers="headers"
       :items="usuarios"
-      :search="Buscar"
       disable-sort
       no-results-text="No se encontraron resultados"
       no-data-text="Aún no hay Datos"
@@ -88,15 +95,16 @@ export default {
   async asyncData () {
     try {
       const data = await axios.get(`${config.URL}usuario`)
-      return { usuarios: data.data.usuarios }
+      return { usuarios: data.data.data }
     } catch (error) {
       console.log(error, 'asyncData')
     }
   },
   data () {
     return {
+      limpiar: false,
       id: '',
-      Buscar: '',
+      buscar: '',
       snackbar: false,
       color: '',
       text: '',
@@ -119,7 +127,6 @@ export default {
         { text: 'Acciones', value: 'acciones' }
       ],
       usuarios: [],
-      buscar: '',
       usuario: {
         nombre: '',
         apellido: '',
@@ -130,10 +137,41 @@ export default {
         maxRetiro: '',
         retiro: '',
         intentos: ''
-      }
+      },
+      progreso: false
     }
   },
   methods: {
+    async buscarNomber () {
+      console.log('guardar')
+      console.log(this.buscar)
+      try {
+        const data = await axios.get(`${config.URL}usuarioBuscar`, { params: { queryNombre: this.buscar } })
+        if (this.buscar === '') {
+          this.limpiarBuscar()
+        } else {
+          this.usuarios = data.data.data
+        }
+        console.log(data, 'buscar')
+      } catch (error) {
+        console.log(error, 'error')
+      }
+    },
+    // async
+    async limpiarBuscar () {
+      console.log('limpiar')
+      try {
+        const data = await axios.get(`${config.URL}usuario`)
+        console.log(data, 'limpiar')
+        this.usuarios = data.data.data
+      } catch (error) {
+        console.log(error, 'asyncData')
+      }
+    },
+    abrirDialogo () {
+      this.progreso = true
+      this.dialog = true
+    },
     save (item) {
       this.usuarios.push(item)
       this.close()
@@ -201,6 +239,7 @@ export default {
       })
     },
     close (value) {
+      console.log(value, 'salir')
       this.id = ''
       this.index = -1
       this.dialog = value

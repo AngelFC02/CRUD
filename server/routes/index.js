@@ -12,6 +12,8 @@ api.get('/usuario/:usuarioId', UsuarioCtrl.GetUsuario)
 api.put('/usuario/:usuarioId', UsuarioCtrl.UpdateUsuario)
 api.put('/usuario/:usuarioId', UsuarioCtrl.UpdateEstado)
 api.delete('/usuario/:usuarioId', UsuarioCtrl.DeleteUsuario)
+api.get('/usuarioCajero', UsuarioCtrl.GetUsuarioCajero)
+api.get('/usuarioBuscar', UsuarioCtrl.buscarItems)
 
 api.post('/cliente', ClienteCtrl.postCliente)
 api.get('/cliente', ClienteCtrl.getClientes)

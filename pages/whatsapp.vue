@@ -35,14 +35,14 @@
                       </v-btn>
                     </template>
                     <v-list>
-                      <v-list-item>
+                      <v-list-item @click="hola()">
                         <v-list-item-title>
                           nuevo grupo
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item @click="hola()">
                         <v-list-item-title>
-                          d
+                          nuevo msj
                         </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -53,14 +53,47 @@
             <div>
               <v-text-field placeholder="Buscar un chat" prepend-inner-icon="mdi-magnify" outlined class="buscador" />
             </div>
+            <span>
+              <v-list v-for="(item, index) in usuarios" :key="index">
+                <v-divider />
+                <v-list-item @click="hola(item)">
+                  <v-list-item-avatar>
+                    <v-img :src="item.icon" />
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ item.nombre }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ item.texto }}
+                  </v-list-item-subtitle>
+                </v-list-item>
+              </v-list>
+            </span>
           </div>
         </v-container>
       </v-col>
       <v-col cols="9" class="divmsj">
-        <div align="center">
-          <v-img src="whtpp.jpg" width="300" class="img" />
-          <div class="texto">Mantente conectado :v</div>
-        </div>
+        <template>
+          <div v-if="datos" align="center">
+            <v-img src="whtpp.jpg" width="300" class="img" />
+            <div class="texto">Mantente conectado :v</div>
+          </div>
+          <div v-else>
+            <v-card height="50" class="barra">
+              <v-list>
+                <v-list-item>
+                  <v-list-item-avatar>
+                    <img :src="usuario.icon">
+                  </v-list-item-avatar>
+                  <v-list-item-title>
+                    {{ usuario.nombre }}
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-card>
+            <v-img src="fondo.jpg" />
+          </div>
+        </template>
       </v-col>
     </v-row>
   </v-container>
@@ -69,11 +102,31 @@
 export default {
   data () {
     return {
+      datos: true,
+      dialogo: false,
+      usuarios: [
+        { icon: 'v.png', nombre: 'angel', texto: 'que fue :v' },
+        { icon: 'https://cdn.vuetifyjs.com/images/lists/3.jpg', nombre: 'Antonio', texto: "<span class='text--primary'>Ali Connors</span>" },
+        { icon: 'https://cdn.vuetifyjs.com/images/lists/4.jpg', nombre: 'Franquina', texto: 'que fue :v' },
+        { icon: 'https://cdn.vuetifyjs.com/images/lists/5.jpg', nombre: 'Cuya', texto: 'que fue :v' }
+      ],
+      usuario: {
+        icon: '',
+        nombre: '',
+        texto: ''
+      }
     }
   },
   methods: {
-    hola () {
+    hola (item) {
+      this.datos = false
+      this.index = this.usuarios.indexOf(item)
+      this.usuario = Object.assign({}, item)
       console.log('hola')
+    },
+    dialogoImagen (item) {
+      console.log(item)
+      console.log(this.index)
     }
   }
 }
@@ -85,6 +138,10 @@ export default {
   border-radius: 15px;
   margin: 0px;
   padding: 0px;
+}
+.barra {
+  background-color: black;
+  color: black;
 }
 .buscador {
   align-self: center;

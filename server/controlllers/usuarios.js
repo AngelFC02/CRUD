@@ -1,7 +1,7 @@
 'use strict'
 const Usuario = require('../models/usuarios')
 
-function CreateUsuario (req, res) {
+async function CreateUsuario (req, res) {
   console.log(req.body)
   const usuario = new Usuario()
   usuario.nombre = req.body.nombre
@@ -13,28 +13,60 @@ function CreateUsuario (req, res) {
   usuario.maxRetiro = req.body.maxRetiro
   usuario.retiro = req.body.retiro
   usuario.intentos = req.body.intentos
+  try {
+    const data = await usuario.save()
+    return res.status(200).send({ data })
+  } catch (error) {
+    return res.status(500).send({ message: `Error en la base de datos ${error}` })
+  }
+}
+async function GetUsuarios (req, res) {
+  try {
+    const data = await Usuario.find({ }).exec()
+    if (data.length === 0) { res.status(404).send({ message: 'no se encuentra datos' }) }
+    return res.status(200).send({ data })
+  } catch (error) {
+    if (error) { res.status(500).send({ message: `Error en la base de datos ${error}` }) }
+  }
+}
 
-  usuario.save((err, usuario) => {
-    // eslint-disable-next-line curly
-    if (err) return res.status(500).send({ message: `Error en la base de datos ${err}` })
-    res.status(200).send({ usuario })
-  })
-}
-function GetUsuarios (req, res) {
-  Usuario.find((err, usuarios) => {
-    if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-    if (!usuarios) { res.status(404).send({ message: 'no se encuentra datos' }) }
-    res.status(200).send({ usuarios })
-  })
-}
-function GetUsuario (req, res) {
+async function GetUsuario (req, res) {
   const usuarioId = req.params.usuarioId
-  Usuario.findById(usuarioId, (err, usuario) => {
-    if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-    if (!usuario) { res.status(404).send({ message: 'No se encuentra usuarios' }) }
-    res.status(200).send({ usuario })
-  })
+  try {
+    const IdCliente = await Usuario.findOne({ _id: usuarioId }).exec()
+    if (!IdCliente) { return res.status(404).send({ message: 'no se enconstraron productos' }) }
+    res.status(200).send({ data: IdCliente, message: 'Se encontro con exito' })
+  } catch (error) {
+    return res.status(500).send({ message: `Error en la base de datos ${error}` })
+  }
 }
+
+async function GetUsuarioCajero (req, res) {
+  const NTarjeta = req.query.queryFront
+  try {
+    const tarjeta = await Usuario.findOne({ tarjeta: NTarjeta }).exec()
+    console.log(tarjeta, 'getusuariostarjeta')
+    if (!tarjeta) { return res.status(404).send({ message: 'no se encontro tarjeta' }) }
+    return res.status(200).send({ data: tarjeta, message: 'Datos Validos!!!!!!!!!!!!' })
+  } catch (error) {
+    console.log(error)
+    return res.status(500).send({ message: `Error BD ${error}` })
+  }
+}
+
+async function buscarItems (req, res) {
+  const BuscarItem = req.query.queryNombre
+  console.log(BuscarItem, 'back')
+  try {
+    const Buscar = await Usuario.find({ nombre: { $regex: `.*${BuscarItem}.*`, $options: 'i' } }).exec()
+    console.log(Buscar)
+    if (!Buscar) { return res.status(404).send({ message: 'no se encontraron resultados' }) }
+    return res.status(200).send({ data: Buscar, message: 'busqueda exitosa' })
+  } catch (error) {
+    return res.status(500).send({ message: `Error BD ${error}` })
+  }
+}
+
 function UpdateUsuario (req, res) {
   const usuarioId = req.params.usuarioId
   const update = req.body
@@ -44,25 +76,29 @@ function UpdateUsuario (req, res) {
     res.status(200).send({ message: 'Se actualizaron los datos' })
   })
 }
-function UpdateEstado (req, res) {
+
+async function UpdateEstado (req, res) {
   const usuarioId = req.params.usuarioId
   const update = req.body
-  Usuario.findByIdAndUpdate(usuarioId, update, (err, estadoUpdate) => {
-    if (err) { return res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-    if (!estadoUpdate) { return res.status(404).send({ message: 'No se encuentra el usuario' }) }
-    res.status(200).send({ message: 'Se actualizo correctamente' })
-  })
+  try {
+    const data = await Usuario.findByIdAndUpdate(usuarioId, update)
+    if (!data) { return res.status(404).send({ message: 'No se encuentra el usuario' }) }
+    res.status(200).send({ message: 'actualizado correctamente' })
+  } catch (error) {
+    return res.status(500).send({ message: `Error en la base de datos ${error}` })
+  }
 }
-function DeleteUsuario (req, res) {
+
+async function DeleteUsuario (req, res) {
   const usuarioId = req.params.usuarioId
-  Usuario.findById(usuarioId, (err, usuario) => {
-    if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-    if (!usuario) { res.status(404).send({ message: 'No se encuentra el usuario' }) }
-    usuario.remove((err) => {
-      if (err) { res.status(500).send({ message: `Error en la base de datos ${err}` }) }
-      res.status(200).send({ message: 'El producto fue eliminado' })
-    })
-  })
+  try {
+    const data = await Usuario.findById({ _id: usuarioId }).exec()
+    if (!data) { return res.status(404).send({ message: 'No se encuentra el usuario' }) }
+    await data.remove()
+    res.status(200).send({ message: 'eliminado correctamente' })
+  } catch (error) {
+    if (error) { return res.status(500).send({ message: `Error en la base de datos ${error}` }) }
+  }
 }
 
 module.exports = {
@@ -71,5 +107,7 @@ module.exports = {
   GetUsuarios,
   UpdateUsuario,
   DeleteUsuario,
-  UpdateEstado
+  UpdateEstado,
+  GetUsuarioCajero,
+  buscarItems
 }

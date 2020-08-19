@@ -15,7 +15,7 @@
               <v-row>
                 <v-col cols="8">
                   <v-text-field
-                    v-model="usuario.Ntarjeta"
+                    v-model="usuario.tarjeta"
                     :disabled="disableTarjeta ? true : false"
                     label="Ingresar N° de tarjeta"
                     :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
@@ -56,7 +56,7 @@
                   v-model="usuario.retiro"
                   type="number"
                   min="0"
-                  :max="usuario.maxretiro"
+                  :max="usuario.maxRetiro"
                   :disabled="disabledMonto ? true : false"
                   label="Monto a retirar"
                   @keypress="numerosValidacion($event)"
@@ -75,7 +75,7 @@
                     <p>Saldo total: {{ usuario.saldo }}</p>
                   </v-col>
                   <v-col>
-                    <p>Limite Diario: S/.{{ usuario.maxretiro }} </p>
+                    <p>Limite Diario: S/.{{ usuario.maxRetiro }} </p>
                   </v-col>
                 </v-row>
               </div>
@@ -120,8 +120,11 @@
               Gracias!!
             </v-card-title>
             <v-card-actions>
-              <v-btn absolute @click="limpiar()">
+              <v-btn color="success" @click="limpiar()">
                 aceptar
+              </v-btn>
+              <v-btn @click="reporte()">
+                Mostrar reporte
               </v-btn>
             </v-card-actions>
           </div>
@@ -132,11 +135,15 @@
 </template>
 
 <script>
+
 import Swal from 'sweetalert2'
+import axios from 'axios'
+import config from '~/config'
 import formato from '~/plugins/formato'
 export default {
   data () {
     return {
+      fecha: '',
       disableTarjeta: false,
       show1: false,
       seen: false,
@@ -155,17 +162,14 @@ export default {
       dni: '',
       usuario: {
         nombre: '',
-        Ntarjeta: '',
+        tarjeta: '',
         dni: '',
         saldo: 0,
-        maxretiro: 0,
+        maxRetiro: 0,
         retiro: '',
         intentos: ''
       },
-      usuarios: [
-        { nombre: 'angel cuya', Ntarjeta: '123456789012345', dni: '12345678', saldo: 150, maxretiro: 100, retiro: '', intentos: 3 },
-        { nombre: 'antonio', Ntarjeta: '013345678901234', dni: '87654321', saldo: 200, maxretiro: 100, retiro: '', intentos: 3 }
-      ],
+      usuarios: [],
       mensaje: false
     }
   },
@@ -176,7 +180,7 @@ export default {
     salir () {
       this.mensaje = false
     },
-    dniValidar () {
+    async  dniValidar () {
       console.log(this.usuario.intentos)
       console.log(this.index)
       console.log(this.usuario)
@@ -188,39 +192,72 @@ export default {
         this.disableboton = false
       } else {
         this.usuario.intentos -= 1
-        Object.assign(this.usuarios[this.index], this.usuario)
+        // Object.assign(this.usuarios[this.index], this.usuario)
+        try {
+          const data = await axios.put(`${config.URL}usuario/${this.usuario._id}`, { intentos: this.usuario.intentos })
+          console.log(data, 'actulizar intento')
+        } catch (error) {
+          console.log(error, 'intento')
+        }
         if (this.usuario.intentos <= 0) {
           this.mensajeAlert(true, 'error', 'Ya no le quedan itentos. . .')
-          this.usuario.acceso = false
-          Object.assign(this.usuarios[this.index], this.usuario)
+          // Object.assign(this.usuarios[this.index], this.usuario)
+          try {
+            const data = await axios.put(`${config.URL}usuario/${this.usuario._id}`, { intentos: this.usuario.intentos })
+            console.log(data, 'actulizar intento')
+          } catch (error) {
+            console.log(error, 'intento')
+          }
           this.limpiar()
           this.verificarDNI = ''
         }
       }
     },
-    validarTarjeta () {
-      console.log('mensaje')
-      for (const i of this.usuarios) {
-        if (this.usuario.Ntarjeta === i.Ntarjeta) {
-          this.disableTarjeta = true
-          this.verificarDNI = ''
-          this.index = this.usuarios.indexOf(i)
-          this.usuario = Object.assign({}, i)
-          if (this.usuario.intentos <= 0) {
-            this.limpiar()
-            this.mensajeAlert(true, 'error', 'Limite diario caducado !!!')
-          } else {
-            console.log('validado')
-            this.disabled = false
-            // this.index = this.usuarios.indexOf(i)
-            console.log(`indice  = ${this.index}`)
-            console.log(this.usuario)
-            this.mensajeAlert(true, 'success', 'Datos validos!!!')
-            console.log(`numero de tarjeta es ${this.usuario.Ntarjeta}`)
-            this.usuario.retiro = ''
-          }
+    async validarTarjeta () {
+      console.log('mensaje 1')
+      try {
+        const data = await axios.get(`${config.URL}usuarioCajero`, { params: { queryFront: this.usuario.tarjeta } })
+        this.mensajeAlert(true, 'success', data.data.message)
+        this.disableTarjeta = true
+        this.verificarDNI = ''
+        this.usuario = Object.assign({}, data.data.data)
+        if (this.usuario.intentos <= 0) {
+          this.limpiar()
+          this.mensajeAlert(true, 'error', 'Limite diario caducado !!!')
+        } else {
+          console.log('validado')
+          this.disabled = false
+          // this.index = this.usuarios.indexOf(i)
+          // this.mensajeAlert(true, 'success', 'Datos validos!!!')
+          console.log(`numero de tarjeta es ${this.usuario.tarjeta}`)
+          this.usuario.retiro = ''
         }
+        console.log(data, 'validar')
+      } catch (error) {
+        this.mensajeAlert(true, 'error', error.response.data.message)
+        console.log(error)
       }
+      // for (const i of this.usuarios) {
+      //   if (this.usuario.tarjeta === i.tarjeta) {
+      //     this.disableTarjeta = true
+      //     this.verificarDNI = ''
+      //     this.index = this.usuarios.indexOf(i)
+      //     this.usuario = Object.assign({}, i)
+      //     if (this.usuario.intentos <= 0) {
+      //       this.limpiar()
+      //       this.mensajeAlert(true, 'error', 'Limite diario caducado !!!')
+      //     } else {
+      //       console.log('validado')
+      //       this.disabled = false
+      //       // this.index = this.usuarios.indexOf(i)
+      //       console.log(`indice  = ${this.index}`)
+      //       console.log(this.usuario)
+      //       this.mensajeAlert(true, 'success', 'Datos validos!!!')
+      //       console.log(`numero de tarjeta es ${this.usuario.tarjeta}`)
+      //       this.usuario.retiro = ''
+      //     }
+      //   }
+      // }
     },
     limpiar () {
       this.seen2 = false
@@ -234,15 +271,15 @@ export default {
       this.verificarDNI = ''
       this.usuario = {
         nombre: '',
-        Ntarjeta: '',
+        tarjeta: '',
         dni: '',
         saldo: '',
         retiro: '',
-        maxretiro: ''
+        maxRetiro: ''
       }
     },
     ConfirmarRetiro () {
-      if (this.usuario.retiro > this.usuario.maxretiro || this.usuario.saldo <= 0) {
+      if (this.usuario.retiro > this.usuario.maxRetiro || this.usuario.saldo <= 0 || this.usuario.retiro === '' || this.usuario.retiro === 0) {
         this.mensajeAlert(true, 'error', 'Monto no permitido!!!')
         this.usuario.retiro = ''
       } else {
@@ -255,7 +292,7 @@ export default {
           cancelButtonColor: '#d33',
           confirmButtonText: 'Si!',
           cancelButtonText: 'Cancelar'
-        }).then((result) => {
+        }).then(async (result) => {
           if (result.value) {
             Swal.fire(
               'Exito!',
@@ -263,14 +300,38 @@ export default {
               'success'
             )
             this.usuario.saldo = this.usuario.saldo - this.usuario.retiro
-            this.usuario.maxretiro = this.usuario.maxretiro - this.usuario.retiro
-            Object.assign(this.usuarios[this.index], this.usuario)
+            this.usuario.maxRetiro = this.usuario.maxRetiro - this.usuario.retiro
+            try {
+              await axios.put(`${config.URL}usuario/${this.usuario._id}`, { saldo: this.usuario.saldo, maxRetiro: this.usuario.maxRetiro, retiro: this.usuario.retiro })
+            } catch (error) {
+              console.log(error, 'asd')
+            }
+            this.fecha = this.formatFecha()
+            this.usuario.reporte.push(this.usuario.retiro, this.fecha)
             console.log(this.usuario)
+            console.log(this.usuario.reporte)
             this.seen2 = true
             console.log(this.usuarios)
           }
         })
       }
+    },
+    formatFecha (value) {
+      const date = new Date(value)
+      const day = date.getDate()
+      const month = date.getMonth() + 1
+      const year = date.getFullYear()
+
+      if (month < 10) {
+        // console.log(`${day}-0${month}-${year}`)
+        return `${day}-0${month}-${year}`
+      } else {
+        // console.log(`${day}-${month}-${year}`)
+        return `${day}-${month}-${year}`
+      }
+    },
+    reporte () {
+      console.log('reporte')
     },
     mensajeAlert (snakbar, color, text) {
       this.snackbar = snakbar

@@ -3,39 +3,52 @@
     <v-snackbar v-model="snackbar" top :color="color" :timeout="3000">
       {{ text }}
     </v-snackbar>
-    <v-dialog v-model="modaltabs" max-width="500" persistent>
-      <v-row>
+    <v-dialog v-model="modaltabs" width="500" persistent>
+      <v-row dense>
         <v-card>
           <v-tabs centered>
             <v-tab>
               Usuario
             </v-tab>
+            <v-tab>
+              Tarjeta
+            </v-tab>
             <v-tab-item>
-              <v-container col>
+              <v-container fluid>
                 <v-card-title>
                   <span v-if="index === -1">Agregar Usuario</span>
                   <span v-if="index > -1">Editar Usuario</span>
                 </v-card-title>
                 <v-card-text style="padding-bottom: 0px">
-                  <v-text-field
-                    v-model="usuario.nombre"
-                    label="Nombre"
-                    outlined
-                    :error-messages="nombreError"
-                    @keypress="Letras($event)"
-                    @input="$v.usuario.nombre.$touch()"
-                    @blur="$v.usuario.nombre.$touch()"
-                  />
-                  <v-text-field
-                    v-model="usuario.apellido"
-                    label="apellido"
-                    :error-messages="apellidoError"
-                    outlined
-                    @keypress="Letras($event)"
-                    @input="$v.usuario.apellido.$touch()"
-                    @blur="$v.usuario.apellido.$touch()"
-                  />
-                  <v-row>
+                  <v-row dense>
+                    <v-skeleton-loader
+                      v-if="loading"
+                      type="list-item-two-line"
+                    />
+                  </v-row>
+                  <v-row dense>
+                    <v-col cols="12" sm="12">
+                      <v-text-field
+                        v-model="usuario.nombre"
+                        label="Nombre"
+                        outlined
+                        :error-messages="nombreError"
+                        @keypress="Letras($event)"
+                        @input="$v.usuario.nombre.$touch()"
+                        @blur="$v.usuario.nombre.$touch()"
+                      />
+                    </v-col>
+                    <v-col cols="12" sm="12">
+                      <v-text-field
+                        v-model="usuario.apellido"
+                        label="apellido"
+                        :error-messages="apellidoError"
+                        outlined
+                        @keypress="Letras($event)"
+                        @input="$v.usuario.apellido.$touch()"
+                        @blur="$v.usuario.apellido.$touch()"
+                      />
+                    </v-col>
                     <v-col cols="6" style="padding-bottom: 0px">
                       <v-text-field
                         v-model="usuario.dni"
@@ -65,16 +78,13 @@
                 </v-card-text>
               </v-container>
             </v-tab-item>
-            <v-tab>
-              Tarjeta
-            </v-tab>
             <v-tab-item>
-              <v-container>
+              <v-container fluid>
                 <v-card-title>
                   Agregar Datos de la tarjeta
                 </v-card-title>
                 <v-card-text>
-                  <v-row>
+                  <v-row dense>
                     <v-col cols="6">
                       <v-text-field
                         v-model="usuario.tarjeta"
@@ -100,7 +110,7 @@
                       />
                     </v-col>
                   </v-row>
-                  <v-row>
+                  <v-row dense>
                     <v-col cols="6">
                       <v-text-field
                         v-model="usuario.maxRetiro"
@@ -160,7 +170,7 @@ export default {
         dni: { required, minLength: minLength(8) },
         genero: { required },
         tarjeta: { required, minLength: minLength(15) },
-        saldo: { required },
+        saldo: { required, between: between(100, 9999) },
         maxRetiro: { required, between: between(1, this.usuario.saldo) },
         intentos: { required }
       }
@@ -173,6 +183,7 @@ export default {
   },
   data () {
     return {
+      loading: false,
       snackbar: false,
       color: '',
       text: '',
@@ -228,6 +239,7 @@ export default {
       const errors = []
       if (!this.$v.usuario.saldo.$dirty) { return errors }
       !this.$v.usuario.saldo.required && errors.push('saldo es requerido*')
+      !this.$v.usuario.saldo.between && errors.push('Monto debe ser entre 100 y 9999')
       return errors
     },
     maxRetiroError () {
@@ -248,11 +260,15 @@ export default {
     async identificador (value) {
       console.log(value, 'watch')
       if (value) {
+        this.loading = true
         try {
           const data = await axios.get(`${config.URL}usuario/${value}`)
-          this.usuario = Object.assign({}, data.data.usuario)
+          this.usuario = Object.assign({}, data.data.data)
+          this.loading = false
           console.log(data)
         } catch (error) {
+          this.loading = false
+          console.log(error, 'watch')
         }
       }
     }
@@ -268,7 +284,7 @@ export default {
           try {
             const data = await axios.put(`${config.URL}usuario/${self.usuario._id}`, self.usuario)
             self.$emit('update', self.usuario)
-            // this.mensaje(true, 'success', 'Datos Actualizados Correctamente')
+            this.mensaje(true, 'success', 'Se Actualizó Correctamente')
             console.log(self.usuario, 'update')
             console.log(data, 'update')
             self.close()
@@ -278,11 +294,11 @@ export default {
         } else {
           try {
             const data = await axios.post(`${config.URL}usuario`, self.usuario)
-            self.$emit('save', data.data.usuario)
-            // this.mensaje(true, 'success', 'Datos Guardados Correctamente')
+            self.$emit('save', data.data.data)
+            this.mensaje(true, 'success', 'Guardado Correctamente')
             self.close()
           } catch (error) {
-            console.log(error, 'post')
+            console.log(error.response)
           }
         }
       }
