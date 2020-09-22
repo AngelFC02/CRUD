@@ -114,6 +114,11 @@ export default {
           icon: 'mdi-phone',
           title: 'whatsapp',
           to: '/whatsapp'
+        },
+        {
+          icon: 'mdi-pokemon',
+          title: 'pokemon',
+          to: '/d'
         }
       ],
       miniVariant: false,

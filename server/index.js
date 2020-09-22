@@ -41,9 +41,11 @@ async function start () {
   }
 
   app.use(cookiesMiddleware())
+  app.use(bodyParser.json({ limit: '7mb', extended: true }))
+  app.use(bodyParser.urlencoded({ limit: '7mb', extended: true }))
 
-  app.use(bodyParser.json())
-  app.use(bodyParser.urlencoded({ extended: false }))
+  // app.use(bodyParser.json())
+  // app.use(bodyParser.urlencoded({ extended: false }))
 
   app.use(cors())
   app.use('/api/', router)

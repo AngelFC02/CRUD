@@ -58,6 +58,7 @@ async function buscarItems (req, res) {
   const BuscarItem = req.query.queryNombre
   console.log(BuscarItem, 'back')
   try {
+    // , dni: { $regex: `.*${BuscarItem}.*`, $options: 'i' }
     const Buscar = await Usuario.find({ nombre: { $regex: `.*${BuscarItem}.*`, $options: 'i' } }).exec()
     console.log(Buscar)
     if (!Buscar) { return res.status(404).send({ message: 'no se encontraron resultados' }) }
