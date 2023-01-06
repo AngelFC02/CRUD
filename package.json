@@ -19,7 +19,7 @@
     "cross-env": "^5.2.0",
     "express": "^4.16.4",
     "mongoose": "^5.9.25",
-    "nuxt": "^2.0.0",
+    "nuxt": "^2.15.8",
     "sweetalert2": "^9.15.1",
     "universal-cookie-express": "^4.0.3",
     "vuelidate": "^0.7.5"
